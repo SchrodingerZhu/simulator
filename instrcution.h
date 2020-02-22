@@ -20,32 +20,32 @@ enum TYPE : uint8_t {
     R, I, J
 };
 
-#define OPJ_J       0b000010
-#define OPJ_JAL     0b000011
+#define OPC_J       0b000010
+#define OPC_JAL     0b000011
 
-#define OPI_ADDI    0b001000
-#define OPI_ADDIU   0b001001
-#define OPI_ANDI    0b001100
-#define OPI_BEQ     0b000100
-#define OPI_BGEZ    0b000001
-#define OPI_BGTZ    0b000111
-#define OPI_BLEZ    0b000110
-#define OPI_BLTZ    0b000001
-#define OPI_BNE     0b000101
-#define OPI_LB      0b100000
-#define OPI_LBU     0b100100
-#define OPI_LH      0b100001
-#define OPI_LHU     0b100101
-#define OPI_LUI     0b001111
-#define OPI_LW      0b100011
-#define OPI_ORI     0b001101
-#define OPI_SB      0b101000
-#define OPI_SLTI    0b001010
-#define OPI_SLTIU   0b001011
-#define OPI_SH      0b101001
-#define OPI_SW      0b101011
-#define OPI_SWCL    0b111001
-#define OPI_XORI    0b001110
+#define OPC_ADDI    0b001000
+#define OPC_ADDIU   0b001001
+#define OPC_ANDI    0b001100
+#define OPC_BEQ     0b000100
+#define OPC_BGEZ    0b000001
+#define OPC_BGTZ    0b000111
+#define OPC_BLEZ    0b000110
+#define OPC_BLTZ    0b000001
+#define OPC_BNE     0b000101
+#define OPC_LB      0b100000
+#define OPC_LBU     0b100100
+#define OPC_LH      0b100001
+#define OPC_LHU     0b100101
+#define OPC_LUI     0b001111
+#define OPC_LW      0b100011
+#define OPC_ORI     0b001101
+#define OPC_SB      0b101000
+#define OPC_SLTI    0b001010
+#define OPC_SLTIU   0b001011
+#define OPC_SH      0b101001
+#define OPC_SW      0b101011
+#define OPC_SWCL    0b111001
+#define OPC_XORI    0b001110
 
 #define FCR_ADD     0b100000
 #define FCR_ADDU    0b100001

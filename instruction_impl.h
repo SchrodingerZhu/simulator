@@ -33,11 +33,10 @@ struct InstructionImpl {
     explicit InstructionImpl(Instruction instr);
 };
 
-
 // J-TYPES
 SimDef(J)
 
-ComDef(JALI, J)
+ComDef(JAL, J)
 
 // I-TYPES
 SimDef(ADDI)

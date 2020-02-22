@@ -6,12 +6,13 @@
 #include <QListWidget>
 #include <memory>
 #include "instrcution.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 class MainWindow;
-
+struct Executor;
 
 class MainWindow : public QMainWindow
 {
@@ -27,8 +28,19 @@ private slots:
 
     void on_openButton_clicked();
 
+    void on_translateButton_clicked();
+
 public:
+    union {
+        uint64_t all;
+        struct {
+            uint32_t low;
+            uint32_t high;
+        } part;
+    } ACC;
     Ui::MainWindow *ui;
+    Executor* executor = nullptr;
+
     QVector<Instruction> instructions {};
     QVector<uint8_t> stack;
     QVector<uint8_t> heap;
@@ -55,6 +67,11 @@ public:
     void editStack(size_t n, T value);
 
     bool inHeap(size_t addr);
+
+    void updateLow(uint32_t value);
+    void updateHigh(uint32_t value);
+    void updateAcc(uint64_t value);
+    void translateAll();
 };
 
 

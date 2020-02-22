@@ -7,7 +7,7 @@ template<class T>
 void MainWindow::editStack(size_t _n, T value)
 {
     auto n = 0xffffffffu - _n;
-    if (sizeof(T) - 1 > n) {
+    if (sizeof(T) - 1 > n || n >= stack.size()) {
         throw std::runtime_error {"invalid stack access: write"};
     }
     ::new (reinterpret_cast<T *>(stack.begin() + n + 1 - sizeof(T))) T(value);
@@ -20,7 +20,7 @@ template<class T>
 T MainWindow::fetchStack(size_t _n)
 {
     auto n = 0xfffffffu - _n;
-    if (sizeof(T) - 1 > n) {
+    if (sizeof(T) - 1 > n || n >= stack.size()) {
         throw std::runtime_error {"invalid stack access: read"};
     }
     return *reinterpret_cast<T *>(stack.begin() + n + 1 - sizeof(T));

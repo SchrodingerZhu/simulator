@@ -4,8 +4,14 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <iostream>
+#include <memory>
 #include "instruction_impl.h"
 #include "mainwindow.ipp"
+#include "instrcution.h"
+
+struct Executor {
+    std::vector<std::unique_ptr<InstructionImpl>> impls;
+};
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -27,12 +33,16 @@ MainWindow::MainWindow(QWidget *parent)
     ui->programCounter->setReadOnly(true);
     ui->textOutput->setReadOnly(true);
     ui->heapSize->setReadOnly(true);
+    ui->low->setReadOnly(true);
+    ui->high->setReadOnly(true);
     InstructionImpl::mainW = this;
+    executor = new Executor;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete executor;
 }
 
 
@@ -88,6 +98,7 @@ ERR_OPEN:       showWarning("Invalid File Format");
     ui->heap->clear();
     ui->stack->clear();
     ui->heapSize->setText("0");
+    updateAcc(0);
 }
 
 void MainWindow::showWarning(QString str)
@@ -168,5 +179,99 @@ void MainWindow::decreaseStack(size_t n)
 
 
 bool MainWindow::inHeap(size_t addr) {
-    return addr < heap.size();
+    return addr < (size_t)heap.size();
+}
+
+
+void MainWindow::updateLow(uint32_t value)
+{
+    ACC.part.low = value;
+    ui->low->setText(QString("0x%1").arg(QString::number(value, 16)));
+}
+
+void MainWindow::updateHigh(uint32_t value)
+{
+    ACC.part.high = value;
+    ui->high->setText(QString("0x%1").arg(QString::number(value, 16)));
+}
+
+void MainWindow::updateAcc(uint64_t value)
+{
+    ACC.all = value;
+    ui->low->setText(QString("0x%1").arg(QString::number(ACC.part.low, 16)));
+    ui->high->setText(QString("0x%1").arg(QString::number(ACC.part.high, 16)));
+}
+
+
+#define CASE(NAME, TYPE) case TYPE##_##NAME:\
+    executor->impls[i] = std::make_unique<NAME##Impl> (instr);\
+    break;
+
+#define RCASE(NAME) CASE(NAME, FCR)
+#define IJCASE(NAME) CASE(NAME, OPC)
+
+void MainWindow::translateAll()
+{
+    executor->impls.clear();
+    QStringList errors;
+    auto success = true;
+    for(int i = 0; i < instructions.size(); ++i) {
+        executor->impls.push_back(nullptr);
+    }
+    for(int i = 0; i < instructions.size(); ++i) {
+        auto instr = instructions[i];
+        try {
+            if (resolv_type(instr) == R) {
+                switch (instr.INST_R.f) {
+                    RCASE(ADD) RCASE(ADDU) RCASE(AND) RCASE(BREAK)
+                    RCASE(DIV) RCASE(DIVU) RCASE(JALR) RCASE(JR)
+                    RCASE(MFHI) RCASE(MFLO) RCASE(MTHI) RCASE(MTLO)
+                    RCASE(MULT) RCASE(MULTU) RCASE(NOR) RCASE(OR)
+                    RCASE(SLL) RCASE(SLLV) RCASE(SLT) RCASE(SLTU)
+                    RCASE(SRA) RCASE(SRAV) RCASE(SRL) RCASE(SRLV)
+                    RCASE(SUB) RCASE(SUBU) RCASE(SYSCALL) RCASE(XOR)
+                default:
+                    throw std::runtime_error {"no such function code"};
+                }
+            } else {
+                switch (instr.INST_I.op) {
+                    case OPC_BGEZ: // BLEZ
+                        if(instr.INST_I.t) executor->impls[i] = std::make_unique<BGEZImpl>(instr);
+                        else executor->impls[i] = std::make_unique<BLTZImpl>(instr);
+                        break;
+                        IJCASE(J) IJCASE(JAL)
+                        IJCASE(ADDI) IJCASE(ADDIU) IJCASE(ANDI) IJCASE(BEQ)
+                        IJCASE(BGTZ) IJCASE(BLEZ) IJCASE(BNE) IJCASE(LB)
+                        IJCASE(LBU) IJCASE(LH) IJCASE(LHU) IJCASE(LUI)
+                        IJCASE(ORI) IJCASE(SB) IJCASE(SLTI) IJCASE(SLTIU)
+                        IJCASE(SH) IJCASE(SW) IJCASE(XORI)
+                    default: __builtin_unreachable();
+                }
+            }
+            ui->instructions->item(i, 0)->setForeground(QBrush("green"));
+        } catch (const std::runtime_error& e) {
+            errors.push_back(QString("%1: %2").arg(QString::number(BASE_ADDR + (i << 2), 16))
+                             .arg(e.what()));
+            ui->instructions->item(i, 0)->setForeground(QBrush("red"));
+            success = false;
+        }
+    }
+
+    if (success) {
+        QMessageBox box(this);
+        box.setText("Success!");
+        box.setIcon(QMessageBox::Information);
+        box.exec();
+    } else {
+        showWarning(errors.join("\n"));
+    }
+
+    for (auto& i: executor->impls) {
+        i->exec();
+    }
+}
+
+void MainWindow::on_translateButton_clicked()
+{
+    translateAll();
 }

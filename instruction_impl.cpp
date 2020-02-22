@@ -4,6 +4,22 @@
 
 #include "instruction_impl.h"
 #include "mainwindow.ipp"
+#define OP_AMONG_REGS(NAME, A, B, op, C)\
+SimImplDef(NAME, {\
+    mainW->updateRegValue(instr.INST_R.A, mainW->REGS[instr.INST_R.B] op mainW->REGS[instr.INST_R.C]);\
+})
+
+#define SHIFT_REAL(NAME, A, B, op, C, TYPE)\
+SimImplDef(NAME, {\
+    mainW->updateRegValue(instr.INST_R.A,\
+    static_cast<TYPE>(mainW->REGS[instr.INST_R.B]) op static_cast<TYPE>(0b11111 & mainW->REGS[instr.INST_R.C]));\
+})
+
+#define SHIFT_IMM(NAME, A, B, op, C, TYPE)\
+SimImplDef(NAME, {\
+    mainW->updateRegValue(instr.INST_R.A,\
+    static_cast<TYPE>(mainW->REGS[instr.INST_R.B]) op static_cast<TYPE>(instr.INST_R.C));\
+})
 
 MainWindow *InstructionImpl::mainW = nullptr;
 
@@ -13,7 +29,7 @@ SimImplDef(J, {
     mainW->updateProgramCounter(instr.INST_J.A);
 })
 
-ComImplDef(JALI, J, {
+ComImplDef(JAL, J, {
     mainW->updateRegValue(31, mainW->PC + 8);
     JImpl::exec();
 })
@@ -70,7 +86,7 @@ SimImplDef(BNE, {
 })
 
 SimImplDef(LB, {
-    int8_t data = mainW->REGS[instr.INST_I.s];
+    int32_t data = mainW->REGS[instr.INST_I.s];
     int16_t off = instr.INST_I.C + data;
     if (mainW->inHeap(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int8_t>(off));
@@ -80,7 +96,7 @@ SimImplDef(LB, {
 })
 
 SimImplDef(LBU, {
-    int8_t data = mainW->REGS[instr.INST_I.s];
+    int32_t data = mainW->REGS[instr.INST_I.s];
     int16_t off = instr.INST_I.C + data;
     if (mainW->inHeap(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<uint8_t>(off));
@@ -90,7 +106,7 @@ SimImplDef(LBU, {
 })
 
 SimImplDef(LH, {
-    int8_t data = mainW->REGS[instr.INST_I.s];
+    int32_t data = mainW->REGS[instr.INST_I.s];
     int16_t off = instr.INST_I.C + data;
     if (mainW->inHeap(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int16_t>(off));
@@ -100,7 +116,7 @@ SimImplDef(LH, {
 })
 
 SimImplDef(LHU, {
-    int8_t data = mainW->REGS[instr.INST_I.s];
+    int32_t data = mainW->REGS[instr.INST_I.s];
     int16_t off = instr.INST_I.C + data;
     if (mainW->inHeap(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<uint16_t>(off));
@@ -114,7 +130,7 @@ SimImplDef(LUI, {
 })
 
 SimImplDef(LW, {
-    int8_t data = mainW->REGS[instr.INST_I.s];
+    int32_t data = mainW->REGS[instr.INST_I.s];
     int16_t off = instr.INST_I.C + data;
     if (mainW->inHeap(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int32_t>(off));
@@ -129,7 +145,7 @@ SimImplDef(ORI, {
 })
 
 SimImplDef(SB, {
-    int8_t data = mainW->REGS[instr.INST_I.s];
+    int32_t data = mainW->REGS[instr.INST_I.s];
     int16_t off = instr.INST_I.C + data;
     if (mainW->inHeap(off)) {
         mainW->editHeap<uint8_t>(off, mainW->REGS[instr.INST_I.t]);
@@ -138,8 +154,20 @@ SimImplDef(SB, {
     }
 })
 
+SimImplDef(SLTI, {
+    int32_t rs = mainW->REGS[instr.INST_I.s];
+    int16_t data = instr.INST_I.C;
+    mainW->updateRegValue(instr.INST_I.t, rs < data ? 1 : 0);
+})
+
+SimImplDef(SLTIU, {
+    uint32_t rs = mainW->REGS[instr.INST_I.s];
+    uint16_t data = instr.INST_I.C;
+    mainW->updateRegValue(instr.INST_I.t, rs < data ? 1 : 0);
+})
+
 SimImplDef(SH, {
-    int8_t data = mainW->REGS[instr.INST_I.s];
+    int32_t data = mainW->REGS[instr.INST_I.s];
     int16_t off = instr.INST_I.C + data;
     if (mainW->inHeap(off)) {
         mainW->editHeap<uint16_t>(off, mainW->REGS[instr.INST_I.t]);
@@ -149,7 +177,7 @@ SimImplDef(SH, {
 })
 
 SimImplDef(SW, {
-    int8_t data = mainW->REGS[instr.INST_I.s];
+    int32_t data = mainW->REGS[instr.INST_I.s];
     int16_t off = instr.INST_I.C + data;
     if (mainW->inHeap(off)) {
         mainW->editHeap<uint32_t>(off, mainW->REGS[instr.INST_I.t]);
@@ -158,14 +186,94 @@ SimImplDef(SW, {
     }
 })
 
-SimImplDef(SLTI, {
-    int8_t rs = mainW->REGS[instr.INST_I.s];
-    int16_t data = instr.INST_I.C;
-    mainW->updateRegValue(instr.INST_I.t, rs < data ? 1 : 0);
+SimImplDef(XORI, {
+    mainW->updateRegValue(instr.INST_I.t,
+                          mainW->REGS[instr.INST_I.s] ^ instr.INST_I.C);
 })
 
-SimImplDef(SLTIU, {
-    uint8_t rs = mainW->REGS[instr.INST_I.s];
-    uint16_t data = instr.INST_I.C;
-    mainW->updateRegValue(instr.INST_I.t, rs < data ? 1 : 0);
+OP_AMONG_REGS(ADD, d, s, +, t)
+OP_AMONG_REGS(ADDU, d, s, +, t)
+OP_AMONG_REGS(SUB, d, s, -, t)
+OP_AMONG_REGS(SUBU, d, s, -, t)
+OP_AMONG_REGS(AND, d, s, &, t)
+OP_AMONG_REGS(OR, d, s, |, t)
+OP_AMONG_REGS(XOR, d, s, ^, t)
+
+SimImplDef(BREAK, { /* TODO: FIXME */})
+
+SimImplDef(DIV, {
+    int32_t s = mainW->REGS[instr.INST_R.s];
+    int32_t t = mainW->REGS[instr.INST_R.t];
+    mainW->updateLow(s / t);
+    mainW->updateHigh(s % t);
 })
+
+SimImplDef(DIVU, {
+    uint32_t s = mainW->REGS[instr.INST_R.s];
+    uint32_t t = mainW->REGS[instr.INST_R.t];
+    mainW->updateLow(s / t);
+    mainW->updateHigh(s % t);
+})
+
+ComImplDef(JALR, JR, {
+    JRImpl::exec();
+    mainW->updateRegValue(instr.INST_R.d, mainW->PC + 8);
+})
+
+SimImplDef(JR, {
+    mainW->updateProgramCounter(mainW->REGS[instr.INST_R.s]);
+})
+
+
+SimImplDef(MFHI, {
+    mainW->updateRegValue(instr.INST_R.d, mainW->ACC.part.high);
+})
+
+SimImplDef(MFLO, {
+    mainW->updateRegValue(instr.INST_R.d, mainW->ACC.part.low);
+})
+
+SimImplDef(MTHI, {
+    mainW->updateHigh(mainW->REGS[instr.INST_R.s]);
+})
+
+SimImplDef(MTLO, {
+    mainW->updateLow(mainW->REGS[instr.INST_R.s]);
+})
+
+SimImplDef(MULT, {
+    int32_t s = mainW->REGS[instr.INST_R.s];
+    int32_t t = mainW->REGS[instr.INST_R.t];
+    mainW->updateAcc(static_cast<int64_t>(s) * static_cast<int64_t>(t));
+})
+
+SimImplDef(MULTU, {
+    uint32_t s = mainW->REGS[instr.INST_R.s];
+    uint32_t t = mainW->REGS[instr.INST_R.t];
+    mainW->updateAcc(static_cast<uint64_t>(s) * static_cast<uint64_t>(t));
+})
+
+SimImplDef(NOR, {
+    mainW->updateRegValue(instr.INST_R.d, ~ (mainW->REGS[instr.INST_R.s] | mainW->REGS[instr.INST_R.t]));
+})
+
+SHIFT_IMM(SLL, d, t, <<, s, uint32_t)
+SHIFT_REAL(SLLV, d, t, <<, s, uint32_t)
+SHIFT_IMM(SRL, d, t, >>, s, uint32_t)
+SHIFT_REAL(SRLV, d, t, >>, s, uint32_t)
+SHIFT_IMM(SRA, d, t, >>, s, int32_t)
+SHIFT_REAL(SRAV, d, t, >>, s, int32_t)
+
+SimImplDef(SLT, {
+    int32_t rs = mainW->REGS[instr.INST_R.s];
+    int32_t rt = mainW->REGS[instr.INST_R.t];
+    mainW->updateRegValue(instr.INST_R.d, rs < rt ? 1 : 0);
+})
+
+SimImplDef(SLTU, {
+    uint32_t rs = mainW->REGS[instr.INST_R.s];
+    uint32_t rt = mainW->REGS[instr.INST_R.t];
+    mainW->updateRegValue(instr.INST_R.d, rs < rt ? 1 : 0);
+})
+
+SimImplDef(SYSCALL, {/* TODO: FIXME */})
