@@ -4,9 +4,19 @@
 
 #include "instruction_impl.h"
 #include "mainwindow.ipp"
+#include "syscall.h"
 #define OP_AMONG_REGS(NAME, A, B, op, C)\
 SimImplDef(NAME, {\
     mainW->updateRegValue(instr.INST_R.A, mainW->REGS[instr.INST_R.B] op mainW->REGS[instr.INST_R.C]);\
+})
+
+#define OP_AMONG_REGS_OVERFLOW(NAME, A, B, op, C)\
+SimImplDef(NAME, {\
+    int32_t a = mainW->REGS[instr.INST_R.B];\
+    int32_t b = mainW->REGS[instr.INST_R.C];\
+    int32_t c = 0;\
+    if(__builtin_##op##_overflow(a, b, &c)) throw std::runtime_error {"overflow"};\
+    mainW->updateRegValue(instr.INST_R.A, c);\
 })
 
 #define SHIFT_REAL(NAME, A, B, op, C, TYPE)\
@@ -25,18 +35,26 @@ MainWindow *InstructionImpl::mainW = nullptr;
 
 InstructionImpl::InstructionImpl(Instruction instr) : instr(instr) {}
 
+SimImplDef(NOP, {
+    // DO NOTHING;
+})
+
 SimImplDef(J, {
-    mainW->updateProgramCounter(instr.INST_J.A);
+    mainW->advanceCounter = false;
+    mainW->updateProgramCounter(instr.INST_J.A << 2u); /// @todo: CHECK WHETHER THIS IS REQUIRED
 })
 
 ComImplDef(JAL, J, {
-    mainW->updateRegValue(31, mainW->PC + 8);
+    mainW->updateRegValue(31, mainW->PC + 4);
     JImpl::exec();
 })
 
 SimImplDef(ADDI, {
-    mainW->updateRegValue(instr.INST_I.t,
-                          (int8_t) mainW->REGS[instr.INST_I.s] + (int16_t) instr.INST_I.C);
+    int32_t a = mainW->REGS[instr.INST_I.s];
+    int32_t b = instr.INST_I.C;
+    int32_t c = 0;
+    if(__builtin_add_overflow(a, b, &c)) throw std::runtime_error("overflow");
+    mainW->updateRegValue(instr.INST_I.t, c);
 })
 
 SimImplDef(ADDIU, {
@@ -191,9 +209,9 @@ SimImplDef(XORI, {
                           mainW->REGS[instr.INST_I.s] ^ instr.INST_I.C);
 })
 
-OP_AMONG_REGS(ADD, d, s, +, t)
+OP_AMONG_REGS_OVERFLOW(ADD, d, s, add, t)
 OP_AMONG_REGS(ADDU, d, s, +, t)
-OP_AMONG_REGS(SUB, d, s, -, t)
+OP_AMONG_REGS_OVERFLOW(SUB, d, s, sub, t)
 OP_AMONG_REGS(SUBU, d, s, -, t)
 OP_AMONG_REGS(AND, d, s, &, t)
 OP_AMONG_REGS(OR, d, s, |, t)
@@ -221,6 +239,7 @@ ComImplDef(JALR, JR, {
 })
 
 SimImplDef(JR, {
+    mainW->advanceCounter = false;
     mainW->updateProgramCounter(mainW->REGS[instr.INST_R.s]);
 })
 
@@ -257,11 +276,11 @@ SimImplDef(NOR, {
     mainW->updateRegValue(instr.INST_R.d, ~ (mainW->REGS[instr.INST_R.s] | mainW->REGS[instr.INST_R.t]));
 })
 
-SHIFT_IMM(SLL, d, t, <<, s, uint32_t)
+SHIFT_IMM(SLL, d, t, <<, S, uint32_t)
 SHIFT_REAL(SLLV, d, t, <<, s, uint32_t)
-SHIFT_IMM(SRL, d, t, >>, s, uint32_t)
+SHIFT_IMM(SRL, d, t, >>, S, uint32_t)
 SHIFT_REAL(SRLV, d, t, >>, s, uint32_t)
-SHIFT_IMM(SRA, d, t, >>, s, int32_t)
+SHIFT_IMM(SRA, d, t, >>, S, int32_t)
 SHIFT_REAL(SRAV, d, t, >>, s, int32_t)
 
 SimImplDef(SLT, {
@@ -276,4 +295,6 @@ SimImplDef(SLTU, {
     mainW->updateRegValue(instr.INST_R.d, rs < rt ? 1 : 0);
 })
 
-SimImplDef(SYSCALL, {/* TODO: FIXME */})
+SimImplDef(SYSCALL, {
+    mainW->handleSyscall();
+})

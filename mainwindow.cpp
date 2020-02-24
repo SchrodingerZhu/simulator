@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "openmp-use-default-none"
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include "global.h"
@@ -8,11 +10,12 @@
 #include "instruction_impl.h"
 #include "mainwindow.ipp"
 #include "instrcution.h"
+#include <atomic>
+#include "executor.h"
+#include <cstring>
+#include "syscall.h"
 
-struct Executor {
-    std::vector<std::unique_ptr<InstructionImpl>> impls;
-};
-
+MainWindow* Executor::mainW = nullptr;
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -35,8 +38,14 @@ MainWindow::MainWindow(QWidget *parent)
     ui->heapSize->setReadOnly(true);
     ui->low->setReadOnly(true);
     ui->high->setReadOnly(true);
+    ui->delay->setMaximum(5000);
+    ui->delay->setMinimum(0);
     InstructionImpl::mainW = this;
-    executor = new Executor;
+    Executor::mainW = this;
+    ui->stopButton->setDisabled(true);
+    ui->executeButton->setDisabled(true);
+    ui->stepButton->setDisabled(true);
+    ui->translateButton->setDisabled(true);
 }
 
 MainWindow::~MainWindow()
@@ -57,6 +66,7 @@ void MainWindow::on_aboutButton_clicked()
 
 void MainWindow::on_openButton_clicked()
 {
+    resetAll();
     auto fileName = QFileDialog::getOpenFileName(this, tr("Open File"));
     if (fileName.isEmpty()) return;
     QFile file(fileName);
@@ -64,7 +74,6 @@ void MainWindow::on_openButton_clicked()
         showWarning("failed to load file");
         return;
     }
-    instructions.clear();
     while (!file.atEnd()) {
         auto res = file.readLine().trimmed();
         if (res.isEmpty()) continue;
@@ -91,14 +100,7 @@ ERR_OPEN:       showWarning("Invalid File Format");
     }
     ui->instructions->setColumnWidth(0, 10000);
     ui->instructions->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    updateRegValue(29, 0xFFFFFFFFu, QBrush("red"), true);
-    updateProgramCounter(BASE_ADDR);
-    heap.clear();
-    stack.clear();
-    ui->heap->clear();
-    ui->stack->clear();
-    ui->heapSize->setText("0");
-    updateAcc(0);
+    ui->translateButton->setDisabled(false);
 }
 
 void MainWindow::showWarning(QString str)
@@ -214,14 +216,19 @@ void MainWindow::translateAll()
 {
     executor->impls.clear();
     QStringList errors;
-    auto success = true;
+    std::atomic_bool success { true };
     for(int i = 0; i < instructions.size(); ++i) {
         executor->impls.push_back(nullptr);
     }
+
+#pragma omp parallel for
     for(int i = 0; i < instructions.size(); ++i) {
         auto instr = instructions[i];
         try {
-            if (resolv_type(instr) == R) {
+            if (instr.__content == 0) {
+                executor->impls[i] = std::make_unique<NOPImpl>(instr);
+            }
+            else if (resolv_type(instr) == R) {
                 switch (instr.INST_R.f) {
                     RCASE(ADD) RCASE(ADDU) RCASE(AND) RCASE(BREAK)
                     RCASE(DIV) RCASE(DIVU) RCASE(JALR) RCASE(JR)
@@ -262,16 +269,89 @@ void MainWindow::translateAll()
         box.setText("Success!");
         box.setIcon(QMessageBox::Information);
         box.exec();
+        ui->executeButton->setDisabled(false);
+        ui->stepButton->setDisabled(false);
+        ui->translateButton->setDisabled(true);
     } else {
         showWarning(errors.join("\n"));
-    }
-
-    for (auto& i: executor->impls) {
-        i->exec();
+        delete executor;
+        executor = nullptr;
     }
 }
 
 void MainWindow::on_translateButton_clicked()
 {
+    delete executor;
+    executor = new Executor;
     translateAll();
 }
+
+void MainWindow::on_executeButton_clicked()
+{
+    QObject::connect(&timer, SIGNAL(timeout()), executor, SLOT(next()));
+    QObject::connect(executor, SIGNAL(finished()), this, SLOT(on_stopButton_clicked()));
+    timer.setInterval(ui->delay->text().toUInt());
+    timer.start();
+    ui->delay->setDisabled(true);
+    ui->stopButton->setDisabled(false);
+    ui->stepButton->setDisabled(true);
+}
+
+void MainWindow::on_stepButton_clicked()
+{
+    executor->next();
+}
+
+void MainWindow::resetAll() {
+    if(timer.isActive()) timer.stop();
+    updateProgramCounter(BASE_ADDR);
+    delete executor;
+    executor = nullptr;
+    instructions.clear();
+    ui->instructions->clear();
+    for(auto i = 0; i < 32; ++i) {
+        updateRegValue(i, 0, QBrush("green"), true);
+    }
+    updateRegValue(29, 0xFFFFFFFFu, QBrush("red"), true);
+    stack.clear();
+    heap.clear();
+    ui->stack->clear();
+    ui->heap->clear();
+    ui->heapSize->setText(0);
+    ACC.all = 0;
+    ui->high->setText("0x0");
+    ui->low->setText("0x0");
+    ui->textOutput->clear();
+    ui->executeButton->setText("Execute");
+    ui->stopButton->setDisabled(true);
+    ui->executeButton->setDisabled(true);
+    ui->stepButton->setDisabled(true);
+    ui->translateButton->setDisabled(true);
+    ui->delay->setValue(0);
+    ui->instructions->setCurrentCell(0, 0);
+}
+
+void MainWindow::on_resetButton_clicked()
+{
+    resetAll();
+}
+
+void MainWindow::on_stopButton_clicked()
+{
+    timer.stop();
+    ui->stopButton->setDisabled(true);
+    ui->executeButton->setDisabled(false);
+    ui->stepButton->setDisabled(false);
+    ui->delay->setDisabled(false);
+}
+
+void MainWindow::handleSyscall() {
+    switch(REGS[2]) {
+        case SYSCALL_EXIT:
+            executor->exit(0);
+            break;
+    }
+
+}
+
+#pragma clang diagnostic pop
