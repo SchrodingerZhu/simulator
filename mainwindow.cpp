@@ -272,6 +272,7 @@ void MainWindow::translateAll()
         ui->executeButton->setDisabled(false);
         ui->stepButton->setDisabled(false);
         ui->translateButton->setDisabled(true);
+        ui->instructions->setCurrentCell(0, 0);
     } else {
         showWarning(errors.join("\n"));
         delete executor;
@@ -295,6 +296,7 @@ void MainWindow::on_executeButton_clicked()
     ui->delay->setDisabled(true);
     ui->stopButton->setDisabled(false);
     ui->stepButton->setDisabled(true);
+    ui->executeButton->setDisabled(true);
 }
 
 void MainWindow::on_stepButton_clicked()
@@ -344,12 +346,20 @@ void MainWindow::on_stopButton_clicked()
     ui->stepButton->setDisabled(false);
     ui->delay->setDisabled(false);
 }
+#define HANDLE(NAME, BLOCK)\
+    case SYSCALL_##NAME:\
+        BLOCK\
+        break;
 
 void MainWindow::handleSyscall() {
     switch(REGS[2]) {
-        case SYSCALL_EXIT:
-            executor->exit(0);
-            break;
+        HANDLE(EXIT, { executor->exit(0); })
+        HANDLE(SBRK, {
+            uint32_t size = REGS[4];
+            uint32_t addr = heap.size();
+            increaseHeap(size);
+            updateRegValue(2, addr);
+        })
     }
 
 }
