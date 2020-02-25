@@ -8,7 +8,7 @@
 #include <QThread>
 #include <QTimer>
 #include "instrcution.h"
-
+#include "heap.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -23,7 +23,6 @@ public:
 
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override ;
-
 private slots:
     void on_aboutButton_clicked();
 
@@ -53,7 +52,7 @@ public:
     QTimer timer;
     QVector<Instruction> instructions {};
     QVector<uint8_t> stack;
-    QVector<uint8_t> heap;
+    Heap heap;
     uint32_t REGS[32] = {};
     size_t PC = 0;
     size_t lastExec = BASE_ADDR;
@@ -62,12 +61,12 @@ public:
     void updateProgramCounter(size_t value);    
 
     //heap
-    void increaseHeap(size_t n);
-    void decreaseHeap(size_t n);
+    uint32_t allocHeap(size_t size);
+    void deallocHeap(size_t addr);
     template<class T>
-    T fetchHeap(size_t n);
+    T fetchHeap(uint32_t addr);
     template<class T>
-    void editHeap(size_t n, T value);
+    void editHeap(uint32_t addr, T value);
 
     //stack
     void increaseStack(size_t n);
@@ -77,7 +76,7 @@ public:
     template<class T>
     void editStack(size_t n, T value);
 
-    bool inHeap(size_t addr);
+    bool inStack(uint32_t addr);
 
     void updateLow(uint32_t value);
     void updateHigh(uint32_t value);
@@ -85,6 +84,7 @@ public:
     void translateAll();
     void resetAll();
     void handleSyscall();
+    void alloc();
 };
 
 

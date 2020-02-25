@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1845</width>
+    <width>1940</width>
     <height>1382</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
      <rect>
       <x>1570</x>
       <y>20</y>
-      <width>251</width>
+      <width>351</width>
       <height>1301</height>
      </rect>
     </property>
@@ -129,7 +129,7 @@
      <string>Stack</string>
     </property>
    </widget>
-   <widget class="QListWidget" name="heap">
+   <widget class="QTableWidget" name="heap">
     <property name="geometry">
      <rect>
       <x>1120</x>

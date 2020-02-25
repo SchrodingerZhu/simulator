@@ -14,11 +14,11 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
-find_library(Threads REQUIRED)
-find_library(OpenMP REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -fopenmp")
 
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Threads REQUIRED)
+find_package(OpenMP REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -fopenmp")
 add_executable(simulator
         main.cpp
         mainwindow.cpp
@@ -30,6 +30,8 @@ add_executable(simulator
         instrcution.h
         executor.h
         executor.cpp
+        heap.h
+        heap.cpp
         instruction_impl.cpp instruction_impl.h mainwindow.ipp syscall.h)
 
-target_link_libraries(simulator PRIVATE ${CMAKE_THREAD_LIBS_INIT} ${OpenMP_CXX_LIBRARIES} Qt5::Widgets mimalloc-static)
+target_link_libraries(simulator PRIVATE ${CMAKE_THREAD_LIBS_INIT} Threads::Threads Qt5::Widgets mimalloc-static)

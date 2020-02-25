@@ -27,24 +27,15 @@ T MainWindow::fetchStack(size_t _n)
 }
 
 template<class T>
-void MainWindow::editHeap(size_t n, T value)
+void MainWindow::editHeap(uint32_t addr, T value)
 {
-    if (n + sizeof(T) > (size_t)heap.size()) {
-        throw std::runtime_error {"invalid heap access: write"};
-    }
-    ::new (reinterpret_cast<T *>(heap.begin() + n)) T(value);
-    for(auto i = n; i < n + sizeof(T); ++i) {
-        this->ui->heap->item(i)->setText(QString::number(heap[i], 2).rightJustified(8, '0'));
-    }
+    ::new (heap.get<T>(addr)) T(value);
 }
 
 template<class T>
-T MainWindow::fetchHeap(size_t n)
+T MainWindow::fetchHeap(uint32_t addr)
 {
-    if (n + sizeof(T) > heap.size()) {
-        throw std::runtime_error {"invalid heap access: read"};
-    }
-    return *reinterpret_cast<T *>(heap.begin() + n);
+    return *heap.get<T>(addr);
 }
 
 #endif // MAINWINDOW_IPP

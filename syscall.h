@@ -12,8 +12,9 @@
 #define SYSCALL_READ_INT 4
 #define SYSCALL_READ_STRING 5
 
-#define SYSCALL_SBRK 6
+#define SYSCALL_MMAP 6
 #define SYSCALL_EXIT 7
+#define SYSCALL_MUNMAP 8
 
 
 

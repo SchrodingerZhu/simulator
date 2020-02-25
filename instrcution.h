@@ -17,7 +17,7 @@ union Instruction {
 };
 
 enum TYPE : uint8_t {
-    R, I, J
+    R, I, J, RI, RLIKE
 };
 
 #define OPC_J       0b000010
@@ -27,10 +27,8 @@ enum TYPE : uint8_t {
 #define OPC_ADDIU   0b001001
 #define OPC_ANDI    0b001100
 #define OPC_BEQ     0b000100
-#define OPC_BGEZ    0b000001
 #define OPC_BGTZ    0b000111
 #define OPC_BLEZ    0b000110
-#define OPC_BLTZ    0b000001
 #define OPC_BNE     0b000101
 #define OPC_LB      0b100000
 #define OPC_LBU     0b100100
@@ -75,6 +73,34 @@ enum TYPE : uint8_t {
 #define FCR_SUBU    0b100011
 #define FCR_SYSCALL 0b001100
 #define FCR_XOR     0b100110
+#define FCR_TEQ     0b110100
+#define FCR_TNE     0b110110
+#define FCR_TGE     0b110000
+#define FCR_TGEU    0b110001
+#define FCR_TLT     0b110010
+#define FCR_TLTU    0b110011
+
+#define RI_BLTZ    0b00000
+#define RI_BGEZ    0b00001
+#define RI_BLTZL   0b00010
+#define RI_BGEZL   0b00011
+#define RI_TGEI    0b01000
+#define RI_TLTI    0b01010
+#define RI_TLTIU   0b01011
+#define RI_TEQI    0b01100
+#define RI_TNEI    0b01110
+#define RI_BLTZAL  0b10000
+#define RI_BGEZAL  0b10001
+#define RI_BLTZALL 0b10010
+#define RI_BGEZALL 0b10011
+
+#define RLIKE_CLO   0b100001
+#define RLIKE_CLZ   0b100000
+#define RLIKE_MUL   0b000010
+#define RLIKE_MADD  0b000000
+#define RLIKE_MADDU 0b000001
+#define RLIKE_MSUB  0b000100
+#define RLIKE_MSUBU 0b000101
 
 TYPE resolv_type(Instruction inst);
 

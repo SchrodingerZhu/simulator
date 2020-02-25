@@ -144,4 +144,46 @@ SimDef(SYSCALL)
 
 SimDef(XOR)
 
+SimDef(BLTZL)
+
+SimDef(BGEZL)
+
+SimDef(TGEI)
+
+SimDef(TLTI)
+
+SimDef(TLTIU)
+
+SimDef(TEQI)
+
+SimDef(TNEI)
+
+SimDef(BLTZAL)
+
+SimDef(BGEZAL)
+
+SimDef(BLTZALL)
+
+SimDef(BGEZALL)
+
+SimDef(CLO)
+
+SimDef(CLZ)
+
+SimDef(MUL)
+
+SimDef(MADD)
+
+SimDef(MADDU)
+
+SimDef(MSUB)
+
+SimDef(MSUBU)
+
+SimDef(TEQ)
+SimDef(TNE)
+SimDef(TGE)
+SimDef(TGEU)
+SimDef(TLT)
+SimDef(TLTU)
 #endif //SIMULATOR_INSTRUCTION_IMPL_H

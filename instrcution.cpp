@@ -5,6 +5,10 @@ TYPE resolv_type(Instruction inst) {
     switch (inst.INST_J.op) {
         case 0:
             return R;
+        case 1:
+            return RI;
+        case 0x1c:
+            return RLIKE;
         case OPC_J:
         case OPC_JAL:
             return J;
@@ -12,7 +16,6 @@ TYPE resolv_type(Instruction inst) {
         case OPC_ADDIU:
         case OPC_ANDI:
         case OPC_BEQ:
-        case OPC_BGEZ: //OPI_BLTZ
         case OPC_BGTZ:
         case OPC_BLEZ:
         case OPC_BNE:
