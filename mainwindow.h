@@ -71,7 +71,7 @@ public:
     void increaseStack(size_t n);
     void decreaseStack(size_t n);
     template<class T>
-    T fetchStack(size_t n);
+    T& fetchStack(size_t n);
     template<class T>
     void editStack(size_t n, T value);
 
@@ -82,6 +82,14 @@ public:
     void updateAcc(uint64_t value);
     void translateAll();
     void resetAll();
+    template <class T>
+    T* getRealAddr(uint32_t addr) {
+        if (inStack(addr)) {
+            return &fetchStack<T>(addr);
+        } else {
+            return reinterpret_cast<T *>(addr);
+        }
+    }
     void handleSyscall();
 };
 

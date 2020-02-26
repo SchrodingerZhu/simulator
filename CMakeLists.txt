@@ -5,7 +5,7 @@ project(simulator LANGUAGES CXX)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 add_subdirectory(mimalloc)
 
@@ -32,6 +32,6 @@ add_executable(simulator
         executor.cpp
         heap.h
         heap.cpp
-        instruction_impl.cpp instruction_impl.h mainwindow.ipp syscall.h)
+        instruction_impl.cpp instruction_impl.h mainwindow.ipp syscall.h fs.cpp fs.h)
 
 target_link_libraries(simulator PRIVATE Threads::Threads Qt5::Widgets mimalloc-static)

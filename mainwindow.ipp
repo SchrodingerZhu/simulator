@@ -17,7 +17,7 @@ void MainWindow::editStack(size_t _n, T value)
 }
 
 template<class T>
-T MainWindow::fetchStack(size_t _n)
+T& MainWindow::fetchStack(size_t _n)
 {
     auto n = 0xffffffffu - _n;
     if (sizeof(T) - 1 > n || n > stack.size()) {
@@ -29,13 +29,13 @@ T MainWindow::fetchStack(size_t _n)
 template<class T>
 void MainWindow::editHeap(uint32_t addr, T value)
 {
-    ::new (heap.get<T>(addr)) T(value);
+    ::new (reinterpret_cast<T *>(addr)) T(value);
 }
 
 template<class T>
 T MainWindow::fetchHeap(uint32_t addr)
 {
-    return *heap.get<T>(addr);
+    return *reinterpret_cast<T *>(addr);
 }
 
 #endif // MAINWINDOW_IPP

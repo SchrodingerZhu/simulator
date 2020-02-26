@@ -17,5 +17,8 @@
 #define SYSCALL_MUNMAP 8
 
 
+#define SYSCALL_FAST_COPY 10000
+
+
 
 #endif //SIMULATOR_SYSCALL_H

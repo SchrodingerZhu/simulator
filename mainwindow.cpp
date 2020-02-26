@@ -14,12 +14,14 @@
 #include <atomic>
 #include "executor.h"
 #include <cstring>
+#include <QInputDialog>
 #include "syscall.h"
 
 MainWindow *Executor::mainW = nullptr;
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow) {
+    bind_sigsegv();
     ui->setupUi(this);
     this->setWindowTitle("Simulator");
     ui->registers->setRowCount(32);
@@ -415,6 +417,35 @@ void MainWindow::handleSyscall() {
         HANDLE(PRINT_CHAR, {
             auto cur = ui->textOutput->textCursor();
             cur.insertText(QString{REGS[4]});
+        })
+        HANDLE(FAST_COPY, {
+            uint32_t dest = REGS[4];
+            uint32_t source = REGS[5];
+            uint32_t size = REGS[6];
+            std::memcpy(reinterpret_cast<void *>(dest), reinterpret_cast<void *>(source), size);
+        })
+        HANDLE(READ_STRING, {
+            auto addr = getRealAddr<char>(REGS[4]);
+            auto limit = REGS[5];
+            bool ok;
+            QString text = QInputDialog::getMultiLineText(this, "Input Dialog", "Please Input", {}, &ok);
+            if (ok && !text.isEmpty()) {
+                std::memcpy(addr, text.toStdString().c_str(), limit);
+            };
+        })
+        HANDLE(PRINT_STRING, {
+            auto addr = getRealAddr<char>(REGS[4]);
+            auto cur = ui->textOutput->textCursor();
+            cur.insertText(addr);
+        })
+        HANDLE(READ_INT, {
+            auto res = QInputDialog::getInt(this, "Input Dialog", "Please Input");
+            updateRegValue(2, res);
+        })
+        HANDLE(PRINT_INT, {
+            int32_t res = REGS[4];
+            auto cur = ui->textOutput->textCursor();
+            cur.insertText(QString::number(res));
         })
     }
 
