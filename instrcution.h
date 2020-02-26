@@ -44,6 +44,10 @@ enum TYPE : uint8_t {
 #define OPC_SW      0b101011
 #define OPC_SWCL    0b111001
 #define OPC_XORI    0b001110
+#define OPC_LWL     0b100010
+#define OPC_LWR     0b100110
+#define OPC_SWL     0b101010
+#define OPC_SWR     0b101110
 
 #define FCR_ADD     0b100000
 #define FCR_ADDU    0b100001
@@ -82,17 +86,19 @@ enum TYPE : uint8_t {
 
 #define RI_BLTZ    0b00000
 #define RI_BGEZ    0b00001
-#define RI_BLTZL   0b00010
-#define RI_BGEZL   0b00011
 #define RI_TGEI    0b01000
+#define RI_TGEIU    0b01001
 #define RI_TLTI    0b01010
 #define RI_TLTIU   0b01011
 #define RI_TEQI    0b01100
 #define RI_TNEI    0b01110
 #define RI_BLTZAL  0b10000
 #define RI_BGEZAL  0b10001
-#define RI_BLTZALL 0b10010
-#define RI_BGEZALL 0b10011
+
+//#define RI_BLTZL   0b00010
+//#define RI_BGEZL   0b00011
+//#define RI_BLTZALL 0b10010
+//#define RI_BGEZALL 0b10011
 
 #define RLIKE_CLO   0b100001
 #define RLIKE_CLZ   0b100000

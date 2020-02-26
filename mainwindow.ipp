@@ -7,11 +7,11 @@ template<class T>
 void MainWindow::editStack(size_t _n, T value)
 {
     auto n = 0xffffffffu - _n;
-    if (sizeof(T) - 1 > n || n >= stack.size()) {
+    if (sizeof(T) - 1 > n || n > stack.size()) {
         throw std::runtime_error {"invalid stack access: write"};
     }
-    ::new (reinterpret_cast<T *>(stack.begin() + n + 1 - sizeof(T))) T(value);
-    for(auto i = n + 1 - sizeof(T); i <= n; ++i) {
+    ::new (reinterpret_cast<T *>(stack.begin() + n - sizeof(T))) T(value);
+    for(auto i = n - sizeof(T); i < n; ++i) {
         ui->stack->item(stack.size() - i - 1)->setText(QString::number(stack[i], 2).rightJustified(8, '0'));
     }
 }
@@ -19,11 +19,11 @@ void MainWindow::editStack(size_t _n, T value)
 template<class T>
 T MainWindow::fetchStack(size_t _n)
 {
-    auto n = 0xfffffffu - _n;
-    if (sizeof(T) - 1 > n || n >= stack.size()) {
+    auto n = 0xffffffffu - _n;
+    if (sizeof(T) - 1 > n || n > stack.size()) {
         throw std::runtime_error {"invalid stack access: read"};
     }
-    return *reinterpret_cast<T *>(stack.begin() + n + 1 - sizeof(T));
+    return *reinterpret_cast<T *>(stack.begin() + n - sizeof(T));
 }
 
 template<class T>

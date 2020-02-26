@@ -150,6 +150,8 @@ SimDef(BGEZL)
 
 SimDef(TGEI)
 
+SimDef(TGEIU)
+
 SimDef(TLTI)
 
 SimDef(TLTIU)
@@ -181,9 +183,23 @@ SimDef(MSUB)
 SimDef(MSUBU)
 
 SimDef(TEQ)
+
 SimDef(TNE)
+
 SimDef(TGE)
+
 SimDef(TGEU)
+
 SimDef(TLT)
+
 SimDef(TLTU)
+
+SimDef(SWL)
+
+SimDef(SWR)
+
+SimDef(LWL)
+
+SimDef(LWR)
+
 #endif //SIMULATOR_INSTRUCTION_IMPL_H

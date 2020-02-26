@@ -5,6 +5,7 @@
 #include "instruction_impl.h"
 #include "mainwindow.ipp"
 #include "syscall.h"
+
 #define OP_AMONG_REGS(NAME, A, B, op, C)\
 SimImplDef(NAME, {\
     mainW->updateRegValue(instr.INST_R.A, mainW->REGS[instr.INST_R.B] op mainW->REGS[instr.INST_R.C]);\
@@ -38,6 +39,28 @@ SimImplDef(NAME, {\
     if (a op b) throw std::runtime_error {"conditionally trapped!"};\
 })
 
+#define TRAP_RI(NAME, op, TYPE)\
+SimImplDef(NAME, {\
+    TYPE a = mainW->REGS[instr.INST_I.s];\
+    TYPE b = instr.INST_I.C;\
+    if (a op b) throw std::runtime_error {"conditionally trapped!"};\
+})
+
+#define BRANCH_IF(NAME, COND) \
+SimImplDef(NAME, {\
+    if (COND) {\
+        mainW->updateProgramCounter(mainW->PC + (int16_t) instr.INST_I.C * int32_t(4));\
+    }\
+})
+
+#define BRANCH_IF_SAVE(NAME, COND) \
+SimImplDef(NAME, {\
+    if (COND) {\
+        mainW->updateRegValue(31, mainW->PC + 4);\
+        mainW->updateProgramCounter(mainW->PC + (int16_t) instr.INST_I.C * int32_t(4));\
+    }\
+})
+
 MainWindow *InstructionImpl::mainW = nullptr;
 
 InstructionImpl::InstructionImpl(Instruction instr) : instr(instr) {}
@@ -58,9 +81,9 @@ ComImplDef(JAL, J, {
 
 SimImplDef(ADDI, {
     int32_t a = mainW->REGS[instr.INST_I.s];
-    int32_t b = instr.INST_I.C;
+    int16_t b = instr.INST_I.C;
     int32_t c = 0;
-    if(__builtin_add_overflow(a, b, &c)) throw std::runtime_error("overflow");
+    if (__builtin_add_overflow(a, b, &c)) throw std::runtime_error("overflow");
     mainW->updateRegValue(instr.INST_I.t, c);
 })
 
@@ -74,45 +97,28 @@ SimImplDef(ANDI, {
                           mainW->REGS[instr.INST_I.s] & instr.INST_I.C);
 })
 
-SimImplDef(BEQ, {
-    if (mainW->REGS[instr.INST_I.s] == mainW->REGS[instr.INST_I.t]) {
-        mainW->updateProgramCounter(mainW->PC + (int16_t)instr.INST_I.C);
-    }
-})
+BRANCH_IF(BEQ, mainW->REGS[instr.INST_I.s] == mainW->REGS[instr.INST_I.t])
 
-SimImplDef(BGEZ, {
-    if (mainW->REGS[instr.INST_I.s] >= 0) {
-        mainW->updateProgramCounter(mainW->PC + (int16_t)instr.INST_I.C);
-    }
-})
+BRANCH_IF(BGEZ, mainW->REGS[instr.INST_I.s] >= 0)
 
-SimImplDef(BGTZ, {
-    if (mainW->REGS[instr.INST_I.s] > 0) {
-        mainW->updateProgramCounter(mainW->PC + (int16_t)instr.INST_I.C);
-    }
-})
+BRANCH_IF(BGTZ, mainW->REGS[instr.INST_I.s] > 0)
 
-SimImplDef(BLEZ, {
-    if (mainW->REGS[instr.INST_I.s] <= 0) {
-        mainW->updateProgramCounter(mainW->PC + (int16_t)instr.INST_I.C);
-    }
-})
+BRANCH_IF(BLEZ, mainW->REGS[instr.INST_I.s] <= 0)
 
-SimImplDef(BLTZ, {
-    if (mainW->REGS[instr.INST_I.s] < 0) {
-        mainW->updateProgramCounter(mainW->PC + (int16_t)instr.INST_I.C);
-    }
-})
+BRANCH_IF(BLTZ, mainW->REGS[instr.INST_I.s] < 0)
 
-SimImplDef(BNE, {
-    if (instr.INST_I.s != instr.INST_I.t) {
-        mainW->updateProgramCounter(mainW->PC + (int16_t)instr.INST_I.C);
-    }
-})
+BRANCH_IF(BNE, instr.INST_I.s != instr.INST_I.t)
+
+BRANCH_IF_SAVE(BGEZAL, mainW->REGS[instr.INST_I.s] >= 0)
+
+BRANCH_IF_SAVE(BLTZAL, mainW->REGS[instr.INST_I.s] < 0)
+
+
 
 SimImplDef(LB, {
-    int32_t data = mainW->REGS[instr.INST_I.s];
-    int32_t off = instr.INST_I.C + data;
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
     if (!mainW->inStack(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int8_t>(off));
     } else {
@@ -121,8 +127,9 @@ SimImplDef(LB, {
 })
 
 SimImplDef(LBU, {
-    int32_t data = mainW->REGS[instr.INST_I.s];
-    int32_t off = instr.INST_I.C + data;
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
     if (!mainW->inStack(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<uint8_t>(off));
     } else {
@@ -131,8 +138,9 @@ SimImplDef(LBU, {
 })
 
 SimImplDef(LH, {
-    int32_t data = mainW->REGS[instr.INST_I.s];
-    int32_t off = instr.INST_I.C + data;
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
     if (!mainW->inStack(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int16_t>(off));
     } else {
@@ -141,8 +149,9 @@ SimImplDef(LH, {
 })
 
 SimImplDef(LHU, {
-    int32_t data = mainW->REGS[instr.INST_I.s];
-    int32_t off = instr.INST_I.C + data;
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
     if (!mainW->inStack(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<uint16_t>(off));
     } else {
@@ -151,12 +160,13 @@ SimImplDef(LHU, {
 })
 
 SimImplDef(LUI, {
-        mainW->updateRegValue(instr.INST_I.t, instr.INST_I.C << 16u);
+    mainW->updateRegValue(instr.INST_I.t, instr.INST_I.C << 16u);
 })
 
 SimImplDef(LW, {
-    int32_t data = mainW->REGS[instr.INST_I.s];
-    int32_t off = instr.INST_I.C + data;
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
     if (!mainW->inStack(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int32_t>(off));
     } else {
@@ -170,8 +180,9 @@ SimImplDef(ORI, {
 })
 
 SimImplDef(SB, {
-    int32_t data = mainW->REGS[instr.INST_I.s];
-    int32_t off = instr.INST_I.C + data;
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
     if (!mainW->inStack(off)) {
         mainW->editHeap<uint8_t>(off, mainW->REGS[instr.INST_I.t]);
     } else {
@@ -181,19 +192,20 @@ SimImplDef(SB, {
 
 SimImplDef(SLTI, {
     int32_t rs = mainW->REGS[instr.INST_I.s];
-    int32_t data = instr.INST_I.C;
+    int16_t data = instr.INST_I.C;
     mainW->updateRegValue(instr.INST_I.t, rs < data ? 1 : 0);
 })
 
 SimImplDef(SLTIU, {
     uint32_t rs = mainW->REGS[instr.INST_I.s];
-    uint32_t data = instr.INST_I.C;
+    uint16_t data = instr.INST_I.C;
     mainW->updateRegValue(instr.INST_I.t, rs < data ? 1 : 0);
 })
 
 SimImplDef(SH, {
-    int32_t data = mainW->REGS[instr.INST_I.s];
-    int32_t off = instr.INST_I.C + data;
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
     if (!mainW->inStack(off)) {
         mainW->editHeap<uint16_t>(off, mainW->REGS[instr.INST_I.t]);
     } else {
@@ -202,8 +214,9 @@ SimImplDef(SH, {
 })
 
 SimImplDef(SW, {
-    int32_t data = mainW->REGS[instr.INST_I.s];
-    int32_t off = instr.INST_I.C + data;
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
     if (!mainW->inStack(off)) {
         mainW->editHeap<uint32_t>(off, mainW->REGS[instr.INST_I.t]);
     } else {
@@ -217,11 +230,17 @@ SimImplDef(XORI, {
 })
 
 OP_AMONG_REGS_OVERFLOW(ADD, d, s, add, t)
+
 OP_AMONG_REGS(ADDU, d, s, +, t)
+
 OP_AMONG_REGS_OVERFLOW(SUB, d, s, sub, t)
+
 OP_AMONG_REGS(SUBU, d, s, -, t)
+
 OP_AMONG_REGS(AND, d, s, &, t)
+
 OP_AMONG_REGS(OR, d, s, |, t)
+
 OP_AMONG_REGS(XOR, d, s, ^, t)
 
 SimImplDef(BREAK, { /* TODO: FIXME */})
@@ -280,14 +299,19 @@ SimImplDef(MULTU, {
 })
 
 SimImplDef(NOR, {
-    mainW->updateRegValue(instr.INST_R.d, ~ (mainW->REGS[instr.INST_R.s] | mainW->REGS[instr.INST_R.t]));
+    mainW->updateRegValue(instr.INST_R.d, ~(mainW->REGS[instr.INST_R.s] | mainW->REGS[instr.INST_R.t]));
 })
 
 SHIFT_IMM(SLL, d, t, <<, S, uint32_t)
+
 SHIFT_REAL(SLLV, d, t, <<, s, uint32_t)
+
 SHIFT_IMM(SRL, d, t, >>, S, uint32_t)
+
 SHIFT_REAL(SRLV, d, t, >>, s, uint32_t)
+
 SHIFT_IMM(SRA, d, t, >>, S, int32_t)
+
 SHIFT_REAL(SRAV, d, t, >>, s, int32_t)
 
 SimImplDef(SLT, {
@@ -347,8 +371,73 @@ SimImplDef(MSUBU, {
 })
 
 TRAP_R(TEQ, ==, uint32_t)
+
 TRAP_R(TNE, !=, uint32_t)
+
 TRAP_R(TGE, >=, int32_t)
+
 TRAP_R(TGEU, >=, uint32_t)
-TRAP_R(TLT, <=, int32_t)
-TRAP_R(TLTU, <=, uint32_t)
+
+TRAP_R(TLT, <, int32_t)
+
+TRAP_R(TLTU, <, uint32_t)
+
+TRAP_RI(TEQI, ==, uint32_t)
+
+TRAP_RI(TNEI, !=, uint32_t)
+
+TRAP_RI(TGEI, >=, int32_t)
+
+TRAP_RI(TGEIU, >=, uint32_t)
+
+TRAP_RI(TLTI, <, int32_t)
+
+TRAP_RI(TLTIU, <, uint32_t)
+
+SimImplDef(LWL, {
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
+    auto t = (1u << ((4u - ((uint32_t)off & 0b11u)) << 3u)) - 1u;
+    if (!mainW->inStack(off)) {
+        mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int32_t>(off) & t);
+    } else {
+        mainW->updateRegValue(instr.INST_I.t, mainW->fetchStack<int32_t>(off) & t);
+    }
+})
+
+SimImplDef(LWR, {
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
+    auto t = ~((1u << ((4u - ((uint32_t)off & 0b11u)) << 3u)) - 1u);
+    if (!mainW->inStack(off)) {
+        mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int32_t>(off) & t);
+    } else {
+        mainW->updateRegValue(instr.INST_I.t, mainW->fetchStack<int32_t>(off) & t);
+    }
+})
+
+SimImplDef(SWL, {
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
+    auto t = (1u << ((4u - ((uint32_t)off & 0b11u)) << 3u)) - 1u;
+    if (!mainW->inStack(off)) {
+        mainW->editHeap<uint32_t>(off, mainW->REGS[instr.INST_I.t] & t);
+    } else {
+        mainW->editStack<uint32_t>(off, mainW->REGS[instr.INST_I.t] & t);
+    }
+})
+
+SimImplDef(SWR, {
+    uint32_t data = mainW->REGS[instr.INST_I.s];
+    int16_t imm = instr.INST_I.C;
+    uint32_t off = imm + data;
+    auto t = ~((1u << ((4u - ((uint32_t)off & 0b11u)) << 3u)) - 1u);
+    if (!mainW->inStack(off)) {
+        mainW->editHeap<uint32_t>(off, mainW->REGS[instr.INST_I.t] & t);
+    } else {
+        mainW->editStack<uint32_t>(off, mainW->REGS[instr.INST_I.t] & t);
+    }
+})

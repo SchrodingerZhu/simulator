@@ -156,7 +156,7 @@ void MainWindow::decreaseStack(size_t n) {
 
 
 bool MainWindow::inStack(uint32_t addr) {
-    return (0xffffffffu - addr) < stack.size();
+    return (0xffffffffu - addr) <= stack.size();
 }
 
 
@@ -259,17 +259,14 @@ void MainWindow::translateAll() {
                         switch (instr.INST_R.t) {
                             RICASE(BLTZ)
                             RICASE(BGEZ)
-                            RICASE(BLTZL)
-                            RICASE(BGEZL)
                             RICASE(TGEI)
+                            RICASE(TGEIU)
                             RICASE(TLTI)
                             RICASE(TLTIU)
                             RICASE(TEQI)
                             RICASE(TNEI)
                             RICASE(BLTZAL)
                             RICASE(BGEZAL)
-                            RICASE(BLTZALL)
-                            RICASE(BGEZALL)
                             default:
                                 throw std::runtime_error{"no such ri instruction"};
                         }
@@ -289,6 +286,7 @@ void MainWindow::translateAll() {
                             IJCASE(LBU)
                             IJCASE(LH)
                             IJCASE(LHU)
+                            IJCASE(LW)
                             IJCASE(LUI)
                             IJCASE(ORI)
                             IJCASE(SB)
@@ -297,6 +295,10 @@ void MainWindow::translateAll() {
                             IJCASE(SH)
                             IJCASE(SW)
                             IJCASE(XORI)
+                            IJCASE(LWL)
+                            IJCASE(LWR)
+                            IJCASE(SWL)
+                            IJCASE(SWR)
                             default:
                                 __builtin_unreachable();
                         }
