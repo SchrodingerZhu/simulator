@@ -31,7 +31,6 @@ MainWindow::MainWindow(QWidget *parent)
         ui->registers->setItem(i, 1, new QTableWidgetItem{"0"});
         ui->registers->item(i, 1)->setForeground(QBrush("green"));
     }
-    ui->registers->setColumnWidth(1, 200);
     ui->registers->setEditTriggers(QAbstractItemView::NoEditTriggers);
     this->setFixedSize(this->maximumSize());
     ui->programCounter->setReadOnly(true);
@@ -50,6 +49,10 @@ MainWindow::MainWindow(QWidget *parent)
     ui->heap->setColumnCount(1);
     ui->heap->horizontalHeader()->setHidden(true);
     ui->heap->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->heap->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->instructions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->registers->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->registers->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 MainWindow::~MainWindow() {
@@ -101,7 +104,6 @@ void MainWindow::on_openButton_clicked() {
         ui->instructions->setItem(i, 0, new QTableWidgetItem{
                 QString::number(instructions[i].__content, 2).rightJustified(32, '0')});
     }
-    ui->instructions->setColumnWidth(0, 10000);
     ui->instructions->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->translateButton->setDisabled(false);
 }
@@ -425,7 +427,6 @@ uint32_t MainWindow::allocHeap(size_t size) {
     ui->heap->insertRow(order);
     ui->heap->setVerticalHeaderItem(order, new QTableWidgetItem{QString::number(addr, 16)});
     ui->heap->setItem(order, 0, new QTableWidgetItem{QString::number(size)});
-    ui->heap->setColumnWidth(0, 10000);
     return addr;
 }
 

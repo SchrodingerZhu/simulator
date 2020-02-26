@@ -48,14 +48,13 @@ public:
     } ACC;
     Ui::MainWindow *ui;
     Executor* executor = nullptr;
-    bool advanceCounter = true; /// @todo: THIS IS OF NO USE FOR NOW.
+    bool advanceCounter = true;
     QTimer timer;
     QVector<Instruction> instructions {};
     QVector<uint8_t> stack;
     Heap heap;
     uint32_t REGS[32] = {};
     size_t PC = 0;
-    size_t lastExec = BASE_ADDR;
     void showWarning(QString str);
     void updateRegValue(int no, uint32_t value, const QBrush& brush = QBrush("red"), bool init = false);
     void updateProgramCounter(size_t value);    
@@ -84,7 +83,6 @@ public:
     void translateAll();
     void resetAll();
     void handleSyscall();
-    void alloc();
 };
 
 
