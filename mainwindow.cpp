@@ -142,25 +142,25 @@ void MainWindow::updateProgramCounter(size_t value) {
 }
 
 void MainWindow::increaseStack(size_t n) {
-    stack.resize(stack.size() + n);
+    stack.enlarge(n);
     for (auto i = 0; i < (int) n; ++i) {
         this->ui->stack->insertItem(0, QString::number(0).rightJustified(8, '0'));
     }
 }
 
 void MainWindow::decreaseStack(size_t n) {
-    if (stack.size() < (int) n) {
+    if (stack.size() < n) {
         throw std::runtime_error{"stack size cannot be decreased by that much"};
     }
     for (size_t i = 0; i < n; ++i) {
         ::delete this->ui->stack->takeItem(0);
     }
-    stack.resize(stack.size() - n);
+    stack.decrease(n);
 }
 
 
 bool MainWindow::inStack(uint32_t addr) {
-    return (0xffffffffu - addr) <= stack.size();
+    return stack.order(addr) >= 0;
 }
 
 
@@ -428,10 +428,14 @@ void MainWindow::handleSyscall() {
             auto addr = getRealAddr<char>(REGS[4]);
             auto limit = REGS[5];
             bool ok;
-            QString text = QInputDialog::getMultiLineText(this, "Input Dialog", "Please Input", {}, &ok);
-            if (ok && !text.isEmpty()) {
-                std::memcpy(addr, text.toStdString().c_str(), limit);
+            auto text = QInputDialog::getMultiLineText(this, "Input Dialog", "Please Input", {}, &ok).toStdString();
+            addr[std::min<size_t>(text.size(), limit) + 1] = 0;
+            if (ok && !text.empty()) {
+                std::memcpy(addr, text.c_str(), std::min<size_t>(text.size(), limit));
             };
+            if (inStack(REGS[4])) {
+                updateStack(REGS[4], std::min<size_t>(text.size(), limit) + 1);
+            }
         })
         HANDLE(PRINT_STRING, {
             auto addr = getRealAddr<char>(REGS[4]);
@@ -467,5 +471,14 @@ void MainWindow::deallocHeap(size_t addr) {
     ui->heapSize->setText(QString::number(heap.size));
     ui->heap->removeRow(order);
 }
+
+void MainWindow::updateStack(uint32_t addr, size_t size) {
+    auto n = STACK_HIGH - addr;
+    for(auto i = 0; i < size; ++i) {
+        ui->stack->item(stack.order(addr + i))->setText(
+                QString::number(*stack.get<uint8_t>(addr + i), 2).rightJustified(8, '0'));
+    }
+}
+
 
 #pragma clang diagnostic pop

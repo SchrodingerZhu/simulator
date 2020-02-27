@@ -32,6 +32,6 @@ add_executable(simulator
         executor.cpp
         heap.h
         heap.cpp
-        instruction_impl.cpp instruction_impl.h mainwindow.ipp syscall.h fs.cpp fs.h)
+        instruction_impl.cpp instruction_impl.h mainwindow.ipp syscall.h fs.cpp fs.h stack.cpp stack.h)
 
 target_link_libraries(simulator PRIVATE Threads::Threads Qt5::Widgets mimalloc-static)

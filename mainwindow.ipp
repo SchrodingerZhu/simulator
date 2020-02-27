@@ -4,26 +4,16 @@
 #include "mainwindow.h"
 
 template<class T>
-void MainWindow::editStack(size_t _n, T value)
+void MainWindow::editStack(uint32_t addr, T value)
 {
-    auto n = 0xffffffffu - _n;
-    if (sizeof(T) - 1 > n || n > stack.size()) {
-        throw std::runtime_error {"invalid stack access: write"};
-    }
-    ::new (reinterpret_cast<T *>(stack.begin() + n - sizeof(T))) T(value);
-    for(auto i = n - sizeof(T); i < n; ++i) {
-        ui->stack->item(stack.size() - i - 1)->setText(QString::number(stack[i], 2).rightJustified(8, '0'));
-    }
+    ::new (reinterpret_cast<T *>(stack.get<T>(addr))) T(value);
+    updateStack(addr, sizeof(T));
 }
 
 template<class T>
-T& MainWindow::fetchStack(size_t _n)
+T& MainWindow::fetchStack(uint32_t addr)
 {
-    auto n = 0xffffffffu - _n;
-    if (sizeof(T) - 1 > n || n > stack.size()) {
-        throw std::runtime_error {"invalid stack access: read"};
-    }
-    return *reinterpret_cast<T *>(stack.begin() + n - sizeof(T));
+    return *stack.get<T>(addr);
 }
 
 template<class T>
@@ -36,6 +26,15 @@ template<class T>
 T MainWindow::fetchHeap(uint32_t addr)
 {
     return *reinterpret_cast<T *>(addr);
+}
+
+template<class T>
+T *MainWindow::getRealAddr(uint32_t addr) {
+    if (inStack(addr)) {
+        return stack.get<T>(addr);
+    } else {
+        return reinterpret_cast<T *>(addr);
+    }
 }
 
 #endif // MAINWINDOW_IPP
