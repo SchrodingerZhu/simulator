@@ -467,6 +467,14 @@ void MainWindow::handleSyscall() {
             auto fd = REGS[4];
             ::close(fd);
         })
+        HANDLE(READ, {
+            auto res = read(REGS[4], getRealAddr<char>(REGS[5]), REGS[6]);
+            updateRegValue(2, res);
+        })
+        HANDLE(WRITE, {
+            auto res = write(REGS[4], getRealAddr<char>(REGS[5]), REGS[6]);
+            updateRegValue(2, res);
+        })
         default:
             throw std::runtime_error("unknown syscall");
     }

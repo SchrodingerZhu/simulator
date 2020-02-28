@@ -1,10 +1,11 @@
 #include "heap.h"
+#include "global.h"
 #include <sys/mman.h>
 #include <sstream>
 uint32_t Heap::alloc(size_t n) {
     auto res = reinterpret_cast<uint64_t>
         (mmap(nullptr, n, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_32BIT,-1, 0));
-    if (!res) throw std::runtime_error("out of memory");
+    if (UNLIKELY(!res)) throw std::runtime_error("out of memory");
     mapping[res] = n;
     size += n;
     return res;
@@ -22,6 +23,7 @@ void Heap::clear() {
     for(auto &i : mapping) {
         munmap(reinterpret_cast<void *>(i.first), i.second);
     }
+    size = 0;
 }
 
 Heap::~Heap() {

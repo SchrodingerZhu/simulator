@@ -35,7 +35,6 @@ struct Stack {
 
 template<class T>
 T *Stack::get(uint32_t addr) {
-    uint32_t temp;
     uint32_t type_size = sizeof(T);
     if (will_overflow(addr, type_size)) {
         throw std::runtime_error("invalid stack access");
