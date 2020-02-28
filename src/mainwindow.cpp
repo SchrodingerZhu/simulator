@@ -463,6 +463,13 @@ void MainWindow::handleSyscall() {
             auto res = open(addr, flags, mode);
             updateRegValue(2, res);
         })
+        HANDLE(UI_OPEN_FILE, {
+            auto name = QFileDialog::getOpenFileName(this, "Open File").toStdString();
+            auto flags = REGS[5];
+            auto mode = REGS[6];
+            auto res = open(name.c_str(), flags, mode);
+            updateRegValue(2, res);
+        })
         HANDLE(CLOSE, {
             auto fd = REGS[4];
             ::close(fd);
