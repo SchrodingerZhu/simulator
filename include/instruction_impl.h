@@ -12,7 +12,9 @@
 
 #define ComDef(CLASS, FATHER) \
     struct CLASS##Impl : public FATHER##Impl {\
-        explicit CLASS##Impl(Instruction instr);\
+        /*! construct the target instruction implementation */ \
+        explicit CLASS##Impl(/*! the instruction value */ Instruction instr);\
+        /*! execute the instruction, depends on the real implementation in each struct */ \
         void exec() override;\
     };
 
@@ -24,12 +26,31 @@
 
 #define SimImplDef(CLASS, BLOCK) ComImplDef(CLASS, Instruction, BLOCK)
 
+/*!
+ * The base class of the instruction implementations.
+ * All subclasses must implement the `exec()` function, and this function decides the behavior of each construction.
+ */
 struct InstructionImpl {
+    /*! Static pointer back to the main windows.
+     * This pointer allow us to interact with the ui components.
+     * @attention This pointer should never be modified in any situation except for the setting
+     * happens during the initialization MainWindow
+     */
     static MainWindow *mainW;
+
+    /// the instruction value.
     Instruction instr;
 
+    /*!
+     * The purely virtual function `exec()` is to be overwritten in the subclasses.
+     */
     virtual void exec() = 0;
 
+    /*!
+     * Construct the base class: InstructionImpl.
+     * @attention This function will set the instruction and should be invoked by all subclasses in some way.
+     * @param instr the instruction value
+     */
     explicit InstructionImpl(Instruction instr);
 };
 

@@ -1,7 +1,9 @@
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
 #include "instruction_impl.h"
-
+/*!
+ * Executor is a helper class for us to store compiled instructions and enable slots for automatic execution.
+ */
 class Executor : public QObject {
     Q_OBJECT
 public:

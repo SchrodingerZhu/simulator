@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>mips_left.png</file>
+        <file>mips.png</file>
+    </qresource>
+</RCC>

@@ -14,24 +14,25 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-
+include_directories(include)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenMP REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 add_executable(simulator
-        main.cpp
-        mainwindow.cpp
-        mainwindow.h
-        mainwindow.ui
-        global.cpp
-        global.h
-        instrcution.cpp
-        instrcution.h
-        executor.h
-        executor.cpp
-        heap.h
-        heap.cpp
-        instruction_impl.cpp instruction_impl.h mainwindow.ipp syscall.h fs.cpp fs.h stack.cpp stack.h)
+        src/main.cpp
+        src/mainwindow.cpp
+        include/mainwindow.h
+        include/mainwindow.ui
+        src/global.cpp
+        include/global.h
+        src/instrcution.cpp
+        include/instrcution.h
+        include/executor.h
+        src/executor.cpp
+        include/heap.h
+        src/heap.cpp
+        misc/resources.qrc
+        src/instruction_impl.cpp include/instruction_impl.h include/mainwindow.ipp include/syscall.h include/fs.h src/stack.cpp include/stack.h)
 
 target_link_libraries(simulator PRIVATE Threads::Threads Qt5::Widgets mimalloc-static)

@@ -2,7 +2,7 @@
 #pragma ide diagnostic ignored "openmp-use-default-none"
 
 #include "mainwindow.h"
-#include "./ui_mainwindow.h"
+#include "../include/ui_mainwindow.h"
 #include "global.h"
 #include <QMessageBox>
 #include <QFileDialog>
@@ -16,11 +16,15 @@
 #include <cstring>
 #include <QInputDialog>
 #include "syscall.h"
+#include "fs.h"
+#include <QGraphicsView>
+#include <QPainter>
 
 MainWindow *Executor::mainW = nullptr;
 
 MainWindow::MainWindow(QWidget *parent)
         : QMainWindow(parent), ui(new Ui::MainWindow) {
+    setWindowIcon(QIcon(":/mips_left.png"));
     bind_sigsegv();
     ui->setupUi(this);
     this->setWindowTitle("Simulator");
@@ -66,8 +70,9 @@ MainWindow::~MainWindow() {
 void MainWindow::on_aboutButton_clicked() {
     QMessageBox box(this);
     box.setWindowTitle("About");
-    box.setIcon(QMessageBox::Information);
+    QPixmap image(":/mips_left.png");
     box.setText("A MIPS Simulator for CSC3050 Assignment-2. \nAuthor: Yifan ZHU <i@zhuyi.fan>");
+    box.setIconPixmap(image);
     box.exec();
 }
 
@@ -451,6 +456,19 @@ void MainWindow::handleSyscall() {
             auto cur = ui->textOutput->textCursor();
             cur.insertText(QString::number(res));
         })
+        HANDLE(OPEN, {
+            auto addr = getRealAddr<char>(REGS[4]);
+            auto flags = REGS[5];
+            auto mode = REGS[6];
+            auto res = open(addr, flags, mode);
+            updateRegValue(2, res);
+        })
+        HANDLE(CLOSE, {
+            auto fd = REGS[4];
+            ::close(fd);
+        })
+        default:
+            throw std::runtime_error("unknown syscall");
     }
 
 }
