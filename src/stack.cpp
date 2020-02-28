@@ -44,7 +44,7 @@ void Stack::decrease(size_t n) {
 }
 
 long Stack::order(uint32_t addr) {
-    return static_cast<long>(size()) - long(STACK_HIGH - addr);
+    return static_cast<long>(addr) - long(STACK_HIGH - size());
 }
 
 void Stack::clear() {

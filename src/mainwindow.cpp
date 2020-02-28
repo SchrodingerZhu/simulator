@@ -491,9 +491,9 @@ void MainWindow::deallocHeap(size_t addr) {
 }
 
 void MainWindow::updateStack(uint32_t addr, size_t size) {
-    auto n = STACK_HIGH - addr;
     for(auto i = 0; i < size; ++i) {
-        ui->stack->item(stack.order(addr + i))->setText(
+        auto order = addr - REGS[29] + i;
+        ui->stack->item(order)->setText(
                 QString::number(*stack.get<uint8_t>(addr + i), 2).rightJustified(8, '0'));
     }
 }

@@ -217,7 +217,7 @@ public:
     T &fetchStack(uint32_t addr);
 
     /*!
-     * edit the stack value and update the ui display
+     * Edit the stack value and update the ui display
      * @tparam T primitive type
      * @param addr virtual address on stack
      * @param value the value to be set
@@ -225,6 +225,11 @@ public:
     template<class T>
     void editStack(uint32_t addr, T value);
 
+    /*!
+     * Check whether a address is currently within the stack range.
+     * @param addr the address to check
+     *
+     */
     bool inStack(uint32_t addr);
 
     void updateStack(uint32_t addr, size_t size);
