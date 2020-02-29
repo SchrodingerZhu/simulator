@@ -223,4 +223,8 @@ SimDef(LWL)
 
 SimDef(LWR)
 
+ComDef(SC, SW)
+
+ComDef(LL, LW)
+
 #endif //SIMULATOR_INSTRUCTION_IMPL_H

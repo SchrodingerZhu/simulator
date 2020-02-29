@@ -22,7 +22,9 @@ struct Stack {
     char* current;
     Stack();
     ~Stack();
-    void grow();
+
+    void grow(size_t scale);
+
     bool isEnoughFor(size_t delta);
     [[nodiscard]] size_t size() const;
     template <class T>
@@ -44,6 +46,6 @@ T *Stack::get(uint32_t addr) {
 }
 
 
-
+uint32_t nextPowerOfTwo(uint32_t n);
 
 #endif //SIMULATOR_STACK_H

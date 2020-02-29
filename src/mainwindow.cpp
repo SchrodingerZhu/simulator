@@ -308,6 +308,8 @@ void MainWindow::translateAll() {
                             IJCASE(LWR)
                             IJCASE(SWL)
                             IJCASE(SWR)
+                            IJCASE(LL)
+                            IJCASE(SC)
                             default:
                                 __builtin_unreachable();
                         }

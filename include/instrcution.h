@@ -48,6 +48,8 @@ enum TYPE : uint8_t {
 #define OPC_LWR     0b100110
 #define OPC_SWL     0b101010
 #define OPC_SWR     0b101110
+#define OPC_SC      0b111000
+#define OPC_LL      0b110000
 
 #define FCR_ADD     0b100000
 #define FCR_ADDU    0b100001

@@ -23,18 +23,20 @@ Stack::~Stack() {
     mi_free(start);
 }
 
-void Stack::grow() {
-    auto new_start =  static_cast<char *>(mi_malloc(capacity << 1u));
-    std::memcpy(new_start + capacity, highest - capacity, capacity);
-    current = new_start + capacity;
-    std::memset(new_start, 0, capacity);
+
+void Stack::grow(size_t scale) {
+    auto new_cap = capacity << scale;
+    auto new_start = static_cast<char *>(mi_malloc(capacity << scale));
+    std::memcpy(new_start + new_cap - capacity, highest - capacity, capacity);
+    current = new_start + new_cap - capacity;
+    std::memset(new_start, 0, new_cap - capacity);
     mi_free(highest - capacity);
-    capacity <<= 1u;
-    highest = new_start + capacity;
+    capacity <<= new_cap;
+    highest = new_start + new_cap;
 }
 
 void Stack::enlarge(size_t n) {
-    while (!isEnoughFor(n)) grow();
+    if (!isEnoughFor(n)) grow(nextPowerOfTwo(n) / capacity);
     current -= n;
 }
 
@@ -52,4 +54,9 @@ void Stack::clear() {
     capacity = DEFAULT_SIZE;
     current = highest = static_cast<char *>(mi_malloc(capacity)) + capacity;
     std::memset(current - capacity, 0, capacity);
+}
+
+uint32_t nextPowerOfTwo(uint32_t n) {
+    n += !n;
+    return (uint32_t) 1u << (31u - __builtin_clz((n << 1u) - 1u));
 }

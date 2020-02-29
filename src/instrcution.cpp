@@ -33,6 +33,12 @@ TYPE resolv_type(Instruction inst) {
         case OPC_SW:
         case OPC_SWCL:
         case OPC_XORI:
+        case OPC_LWL:
+        case OPC_LWR:
+        case OPC_SWL:
+        case OPC_SWR:
+        case OPC_LL:
+        case OPC_SC:
             return I;
         default:
             throw std::runtime_error{"unrecognized type"};
