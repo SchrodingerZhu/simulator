@@ -187,7 +187,7 @@ void MainWindow::updateAcc(uint64_t value) {
 
 
 #define CASE(NAME, TYPE) case TYPE##_##NAME:\
-    executor->impls[i] = std::make_unique<NAME##Impl> (instr);\
+    executor->impls[i] = _SIM::make_unique<NAME##Impl> (instr);\
     break;
 
 #define RCASE(NAME) CASE(NAME, FCR)
@@ -208,7 +208,7 @@ void MainWindow::translateAll() {
         auto instr = instructions[i];
         try {
             if (instr.__content == 0) {
-                executor->impls[i] = std::make_unique<NOPImpl>(instr);
+                executor->impls[i] = _SIM::make_unique<NOPImpl>(instr);
             } else {
                 switch (resolv_type(instr)) {
                     case R:
@@ -508,7 +508,7 @@ void MainWindow::deallocHeap(size_t addr) {
 }
 
 void MainWindow::updateStack(uint32_t addr, size_t size) {
-    for(auto i = 0; i < size; ++i) {
+    for (auto i = 0; i < size; ++i) {
         auto order = addr - REGS[29] + i;
         ui->stack->item(order)->setText(
                 QString::number(*stack.get<uint8_t>(addr + i), 2).rightJustified(8, '0'));

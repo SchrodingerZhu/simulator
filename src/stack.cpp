@@ -14,8 +14,7 @@ bool Stack::isEnoughFor(size_t delta) {
 
 Stack::Stack() {
     capacity = DEFAULT_SIZE;
-    current = highest = static_cast<char *>(mi_malloc(capacity)) + capacity;
-    std::memset(current - capacity, 0, capacity);
+    current = highest = static_cast<char *>(mi_zalloc(capacity)) + capacity;
 }
 
 Stack::~Stack() {
@@ -26,12 +25,11 @@ Stack::~Stack() {
 
 void Stack::grow(size_t scale) {
     auto new_cap = capacity << scale;
-    auto new_start = static_cast<char *>(mi_malloc(capacity << scale));
-    std::memcpy(new_start + new_cap - capacity, highest - capacity, capacity);
-    current = new_start + new_cap - capacity;
-    std::memset(new_start, 0, new_cap - capacity);
+    auto new_start = static_cast<char *>(mi_zalloc(new_cap));
+    std::memcpy(new_start + new_cap - size(), current, size());
+    current = new_start + new_cap - size();
     mi_free(highest - capacity);
-    capacity <<= new_cap;
+    capacity = new_cap;
     highest = new_start + new_cap;
 }
 
@@ -52,8 +50,7 @@ long Stack::order(uint32_t addr) {
 void Stack::clear() {
     mi_free(highest - capacity);
     capacity = DEFAULT_SIZE;
-    current = highest = static_cast<char *>(mi_malloc(capacity)) + capacity;
-    std::memset(current - capacity, 0, capacity);
+    current = highest = static_cast<char *>(mi_zalloc(capacity)) + capacity;
 }
 
 uint32_t nextPowerOfTwo(uint32_t n) {

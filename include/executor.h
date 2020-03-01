@@ -10,7 +10,7 @@ public:
     /// a pointer back to the MainWindow, provides APIs on the UI components.
     static MainWindow *mainW;
     /// a set of pointers to the translated result of the machine code.
-    std::vector<std::unique_ptr<InstructionImpl>> impls;
+    std::vector<_SIM::InstrPtr> impls;
 public slots:
 
     /*!
