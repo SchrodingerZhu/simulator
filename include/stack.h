@@ -6,6 +6,7 @@
 #define SIMULATOR_STACK_H
 #define DEFAULT_SIZE    64u
 #define STACK_HIGH      0xffffffffu
+
 #include <cstddef>
 #include <mimalloc.h>
 #include <cstring>
@@ -18,20 +19,28 @@ static inline bool will_overflow(uint32_t a, uint32_t b) {
 
 struct Stack {
     size_t capacity;
-    char* highest;
-    char* current;
+    char *highest;
+    char *current;
+
     Stack();
+
     ~Stack();
 
     void grow(size_t scale);
 
     bool isEnoughFor(size_t delta);
+
     [[nodiscard]] size_t size() const;
-    template <class T>
-    T* get(uint32_t addr);
+
+    template<class T>
+    T *get(uint32_t addr);
+
     void enlarge(size_t n);
+
     void decrease(size_t n);
+
     long order(uint32_t addr);
+
     void clear();
 };
 

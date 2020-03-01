@@ -1,220 +1,220 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MainWindow</class>
- <widget class="QMainWindow" name="MainWindow">
-  <property name="geometry">
-   <rect>
-    <x>0</x>
-    <y>0</y>
-    <width>1918</width>
-    <height>1390</height>
-   </rect>
-  </property>
-  <property name="windowTitle">
-   <string>MainWindow</string>
-  </property>
-  <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,4">
-    <item>
-     <widget class="QTableWidget" name="registers"/>
-    </item>
-    <item>
-     <layout class="QVBoxLayout" name="verticalLayout" stretch="4,2,1,1">
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,1,1">
-        <item>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Text Output</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QPlainTextEdit" name="textOutput"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_3">
-            <property name="text">
-             <string>Stack</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QListWidget" name="stack"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_4">
-            <property name="text">
-             <string>Heap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QTableWidget" name="heap"/>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1">
-        <item>
-         <widget class="QTableWidget" name="instructions"/>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_4">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label">
-            <property name="text">
-             <string>PC</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QLineEdit" name="programCounter"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Heap</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="heapSize">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_7">
-            <property name="text">
-             <string>Low</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QLineEdit" name="low">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="label_6">
-            <property name="text">
-             <string>High</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="high">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="4,1,2,2">
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QLabel" name="label_8">
-          <property name="text">
-           <string>Delay(ms)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QSpinBox" name="delay"/>
-        </item>
-        <item>
-         <widget class="QPushButton" name="aboutButton">
-          <property name="text">
-           <string>About</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_4">
-        <item>
-         <widget class="QPushButton" name="stepButton">
-          <property name="text">
-           <string>Step</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="stopButton">
-          <property name="text">
-           <string>Stop</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="executeButton">
-          <property name="text">
-           <string>Execute</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="translateButton">
-          <property name="text">
-           <string>Translate</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="resetButton">
-          <property name="text">
-           <string>Reset</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="openButton">
-          <property name="text">
-           <string>Open</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
- </widget>
- <resources/>
- <connections/>
+    <class>MainWindow</class>
+    <widget class="QMainWindow" name="MainWindow">
+        <property name="geometry">
+            <rect>
+                <x>0</x>
+                <y>0</y>
+                <width>1918</width>
+                <height>1390</height>
+            </rect>
+        </property>
+        <property name="windowTitle">
+            <string>MainWindow</string>
+        </property>
+        <widget class="QWidget" name="centralwidget">
+            <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="1,4">
+                <item>
+                    <widget class="QTableWidget" name="registers"/>
+                </item>
+                <item>
+                    <layout class="QVBoxLayout" name="verticalLayout" stretch="4,2,1,1">
+                        <item>
+                            <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,1,1">
+                                <item>
+                                    <layout class="QGridLayout" name="gridLayout_3">
+                                        <item row="0" column="0">
+                                            <widget class="QLabel" name="label_2">
+                                                <property name="text">
+                                                    <string>Text Output</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="0">
+                                            <widget class="QPlainTextEdit" name="textOutput"/>
+                                        </item>
+                                    </layout>
+                                </item>
+                                <item>
+                                    <layout class="QGridLayout" name="gridLayout_2">
+                                        <item row="0" column="0">
+                                            <widget class="QLabel" name="label_3">
+                                                <property name="text">
+                                                    <string>Stack</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="0">
+                                            <widget class="QListWidget" name="stack"/>
+                                        </item>
+                                    </layout>
+                                </item>
+                                <item>
+                                    <layout class="QGridLayout" name="gridLayout">
+                                        <item row="0" column="0">
+                                            <widget class="QLabel" name="label_4">
+                                                <property name="text">
+                                                    <string>Heap</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="0">
+                                            <widget class="QTableWidget" name="heap"/>
+                                        </item>
+                                    </layout>
+                                </item>
+                            </layout>
+                        </item>
+                        <item>
+                            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="2,1">
+                                <item>
+                                    <widget class="QTableWidget" name="instructions"/>
+                                </item>
+                                <item>
+                                    <layout class="QGridLayout" name="gridLayout_4">
+                                        <item row="0" column="0">
+                                            <widget class="QLabel" name="label">
+                                                <property name="text">
+                                                    <string>PC</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="0" column="1">
+                                            <widget class="QLineEdit" name="programCounter"/>
+                                        </item>
+                                        <item row="1" column="0">
+                                            <widget class="QLabel" name="label_5">
+                                                <property name="text">
+                                                    <string>Heap</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="1" column="1">
+                                            <widget class="QLineEdit" name="heapSize">
+                                                <property name="text">
+                                                    <string/>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="2" column="0">
+                                            <widget class="QLabel" name="label_7">
+                                                <property name="text">
+                                                    <string>Low</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="2" column="1">
+                                            <widget class="QLineEdit" name="low">
+                                                <property name="text">
+                                                    <string/>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="3" column="0">
+                                            <widget class="QLabel" name="label_6">
+                                                <property name="text">
+                                                    <string>High</string>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                        <item row="3" column="1">
+                                            <widget class="QLineEdit" name="high">
+                                                <property name="text">
+                                                    <string/>
+                                                </property>
+                                            </widget>
+                                        </item>
+                                    </layout>
+                                </item>
+                            </layout>
+                        </item>
+                        <item>
+                            <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="4,1,2,2">
+                                <item>
+                                    <spacer name="horizontalSpacer">
+                                        <property name="orientation">
+                                            <enum>Qt::Horizontal</enum>
+                                        </property>
+                                        <property name="sizeHint" stdset="0">
+                                            <size>
+                                                <width>40</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </item>
+                                <item>
+                                    <widget class="QLabel" name="label_8">
+                                        <property name="text">
+                                            <string>Delay(ms)</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QSpinBox" name="delay"/>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="aboutButton">
+                                        <property name="text">
+                                            <string>About</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                            </layout>
+                        </item>
+                        <item>
+                            <layout class="QHBoxLayout" name="horizontalLayout_4">
+                                <item>
+                                    <widget class="QPushButton" name="stepButton">
+                                        <property name="text">
+                                            <string>Step</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="stopButton">
+                                        <property name="text">
+                                            <string>Stop</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="executeButton">
+                                        <property name="text">
+                                            <string>Execute</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="translateButton">
+                                        <property name="text">
+                                            <string>Translate</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="resetButton">
+                                        <property name="text">
+                                            <string>Reset</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                                <item>
+                                    <widget class="QPushButton" name="openButton">
+                                        <property name="text">
+                                            <string>Open</string>
+                                        </property>
+                                    </widget>
+                                </item>
+                            </layout>
+                        </item>
+                    </layout>
+                </item>
+            </layout>
+        </widget>
+        <widget class="QStatusBar" name="statusbar"/>
+    </widget>
+    <resources/>
+    <connections/>
 </ui>

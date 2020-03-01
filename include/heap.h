@@ -1,5 +1,6 @@
 #ifndef HEAP_H
 #define HEAP_H
+
 #include <ext/pb_ds/assoc_container.hpp>
 #include <ext/pb_ds/tree_policy.hpp>
 #include <list>
@@ -12,8 +13,8 @@ using namespace __gnu_pbds;
 /*!
  * A Policy Based Statistics Tree to help us keep the order of the allocated chunks
  */
-template <class Key, class Value>
-using TreeSet = tree <Key, Value, std::less<Key>, rb_tree_tag, tree_order_statistics_node_update>;
+template<class Key, class Value>
+using TreeSet = tree<Key, Value, std::less<Key>, rb_tree_tag, tree_order_statistics_node_update>;
 
 /*!
  * Heap help us to record and manage heap storage

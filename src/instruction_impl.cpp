@@ -114,7 +114,6 @@ BRANCH_IF_SAVE(BGEZAL, mainW->REGS[instr.INST_I.s] >= 0)
 BRANCH_IF_SAVE(BLTZAL, mainW->REGS[instr.INST_I.s] < 0)
 
 
-
 SimImplDef(LB, {
     uint32_t data = mainW->REGS[instr.INST_I.s];
     int16_t imm = instr.INST_I.C;
@@ -398,7 +397,7 @@ SimImplDef(LWL, {
     uint32_t data = mainW->REGS[instr.INST_I.s];
     int16_t imm = instr.INST_I.C;
     uint32_t off = imm + data;
-    auto t = (1u << ((4u - ((uint32_t)off & 0b11u)) << 3u)) - 1u;
+    auto t = (1u << ((4u - ((uint32_t) off & 0b11u)) << 3u)) - 1u;
     if (!mainW->inStack(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int32_t>(off) & t);
     } else {
@@ -410,7 +409,7 @@ SimImplDef(LWR, {
     uint32_t data = mainW->REGS[instr.INST_I.s];
     int16_t imm = instr.INST_I.C;
     uint32_t off = imm + data;
-    auto t = ~((1u << ((4u - ((uint32_t)off & 0b11u)) << 3u)) - 1u);
+    auto t = ~((1u << ((4u - ((uint32_t) off & 0b11u)) << 3u)) - 1u);
     if (!mainW->inStack(off)) {
         mainW->updateRegValue(instr.INST_I.t, mainW->fetchHeap<int32_t>(off) & t);
     } else {
@@ -422,7 +421,7 @@ SimImplDef(SWL, {
     uint32_t data = mainW->REGS[instr.INST_I.s];
     int16_t imm = instr.INST_I.C;
     uint32_t off = imm + data;
-    auto t = (1u << ((4u - ((uint32_t)off & 0b11u)) << 3u)) - 1u;
+    auto t = (1u << ((4u - ((uint32_t) off & 0b11u)) << 3u)) - 1u;
     if (!mainW->inStack(off)) {
         mainW->editHeap<uint32_t>(off, mainW->REGS[instr.INST_I.t] & t);
     } else {
