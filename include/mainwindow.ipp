@@ -6,7 +6,7 @@
 
 template<class T>
 void MainWindow::editStack(uint32_t addr, T value) {
-    ::new(reinterpret_cast<T *>(stack.get<T>(addr))) T(value);
+    ::new(stack.get<T>(addr)) T(value);
     updateStack(addr, sizeof(T));
 }
 

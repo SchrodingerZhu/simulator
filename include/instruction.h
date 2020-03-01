@@ -1,5 +1,5 @@
-#ifndef INSTRCUTION_H
-#define INSTRCUTION_H
+#ifndef INSTRUCTION_H
+#define INSTRUCTION_H
 
 #include "global.h"
 
@@ -112,4 +112,4 @@ enum TYPE : uint8_t {
 
 TYPE resolv_type(Instruction inst);
 
-#endif // INSTRCUTION_H
+#endif // INSTRUCTION_H

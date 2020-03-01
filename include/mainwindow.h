@@ -7,7 +7,7 @@
 #include <memory>
 #include <QThread>
 #include <QTimer>
-#include "instrcution.h"
+#include "instruction.h"
 #include "heap.h"
 #include "stack.h"
 /*!

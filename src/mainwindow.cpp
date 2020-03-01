@@ -10,7 +10,7 @@
 #include <memory>
 #include "instruction_impl.h"
 #include "mainwindow.ipp"
-#include "instrcution.h"
+#include "instruction.h"
 #include <atomic>
 #include "executor.h"
 #include <cstring>
@@ -90,7 +90,7 @@ void MainWindow::on_openButton_clicked() {
         if (res.isEmpty()) continue;
         int i = 0;
         bool ok = false;
-        uint32_t result;
+        uint32_t result = 0;
         if (res.length() != 32) goto ERR_OPEN;
         for (; i < 32; ++i) {
             result = res.toUInt(&ok, 2);

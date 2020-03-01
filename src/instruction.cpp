@@ -1,4 +1,4 @@
-#include "instrcution.h"
+#include "instruction.h"
 #include <stdexcept>
 
 TYPE resolv_type(Instruction inst) {

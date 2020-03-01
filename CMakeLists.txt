@@ -26,8 +26,8 @@ add_executable(simulator
         include/mainwindow.ui
         src/global.cpp
         include/global.h
-        src/instrcution.cpp
-        include/instrcution.h
+        src/instruction.cpp
+        include/instruction.h
         include/executor.h
         src/executor.cpp
         include/heap.h
