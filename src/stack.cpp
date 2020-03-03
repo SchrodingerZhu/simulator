@@ -9,7 +9,7 @@ size_t Stack::size() const {
 }
 
 bool Stack::isEnoughFor(size_t delta) {
-    return current - delta + capacity >= highest;
+    return delta <= capacity;
 }
 
 Stack::Stack() {
@@ -23,8 +23,7 @@ Stack::~Stack() {
 }
 
 
-void Stack::grow(size_t scale) {
-    auto new_cap = capacity << scale;
+void Stack::grow(size_t new_cap) {
     auto new_start = static_cast<char *>(mi_zalloc(new_cap));
     std::memcpy(new_start + new_cap - size(), current, size());
     current = new_start + new_cap - size();
@@ -34,7 +33,7 @@ void Stack::grow(size_t scale) {
 }
 
 void Stack::enlarge(size_t n) {
-    if (!isEnoughFor(n)) grow(nextPowerOfTwo(n) / capacity);
+    if (!isEnoughFor(size() + n)) grow(nextPowerOfTwo(size() + n + 1));
     current -= n;
 }
 

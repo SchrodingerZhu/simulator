@@ -27,10 +27,24 @@ T MainWindow::fetchHeap(uint32_t addr) {
 
 template<class T>
 T *MainWindow::getRealAddr(uint32_t addr) {
-    if (inStack(addr)) {
-        return stack.get<T>(addr);
-    } else {
-        return reinterpret_cast<T *>(addr);
+    switch (memoryType(addr)) {
+        case STACK:
+            return stack.get<T>(addr);
+        case STATIC:
+            return reinterpret_cast<T *>(frame.begin() + addr);
+        default:
+            return reinterpret_cast<T *>(addr);
+    }
+}
+
+template<class T>
+void MainWindow::edit(uint32_t addr, T value) {
+    switch (memoryType(addr)) {
+        case STACK:
+            editStack(addr, value);
+            break;
+        default:
+            ::new(getRealAddr<T>(addr)) T(value);
     }
 }
 

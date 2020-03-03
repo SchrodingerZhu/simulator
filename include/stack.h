@@ -4,7 +4,7 @@
 
 #ifndef SIMULATOR_STACK_H
 #define SIMULATOR_STACK_H
-#define DEFAULT_SIZE    64u
+#define DEFAULT_SIZE    1u
 #define STACK_HIGH      0xffffffffu
 
 #include <cstddef>

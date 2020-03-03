@@ -7,9 +7,17 @@
 
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
-
+/*!
+ * A handy macro to create a default constructor based on `NAME` and `FATHER`.
+ * @param NAME name of the instruction
+ * @param FATHER direct base of the instruction
+ */
 #define DEFAULT_INIT(NAME, FATHER) NAME##Impl::NAME##Impl(Instruction instr) : FATHER##Impl(instr) {}
-
+/*!
+ * Complex declaration of an instruction implementation class.
+ * @param NAME name of the instruction
+ * @param FATHER direct base of the instruction
+ */
 #define ComDef(CLASS, FATHER) \
     struct CLASS##Impl : public FATHER##Impl {\
         /*! construct the target instruction implementation */ \
@@ -17,14 +25,75 @@
         /*! execute the instruction, depends on the real implementation in each struct */ \
         void exec() override;\
     };
-
+/*!
+ * Simple declaration for those instruction implementations with a direct base of `InstructionImpl`
+ * @param CLASS the name of the instruction
+ */
 #define SimDef(CLASS) ComDef(CLASS, Instruction)
-
+/*!
+ * Complex real definition of instruction behaviors
+ * @attention must be used together with declarations
+ */
 #define ComImplDef(CLASS, FATHER, BLOCK)\
     void CLASS##Impl::exec() BLOCK\
     DEFAULT_INIT(CLASS, FATHER)
 
 #define SimImplDef(CLASS, BLOCK) ComImplDef(CLASS, Instruction, BLOCK)
+
+#define OP_AMONG_REGS(NAME, A, B, op, C)\
+SimImplDef(NAME, {\
+    mainW->updateRegValue(instr.INST_R.A, mainW->REGS[instr.INST_R.B] op mainW->REGS[instr.INST_R.C]);\
+})
+
+#define OP_AMONG_REGS_OVERFLOW(NAME, A, B, op, C)\
+SimImplDef(NAME, {\
+    int32_t a = mainW->REGS[instr.INST_R.B];\
+    int32_t b = mainW->REGS[instr.INST_R.C];\
+    int32_t c = 0;\
+    if(__builtin_##op##_overflow(a, b, &c)) throw std::runtime_error {"overflow"};\
+    mainW->updateRegValue(instr.INST_R.A, c);\
+})
+
+#define SHIFT_REAL(NAME, A, B, op, C, TYPE)\
+SimImplDef(NAME, {\
+    mainW->updateRegValue(instr.INST_R.A,\
+    static_cast<TYPE>(mainW->REGS[instr.INST_R.B]) op static_cast<TYPE>(0b11111 & mainW->REGS[instr.INST_R.C]));\
+})
+
+#define SHIFT_IMM(NAME, A, B, op, C, TYPE)\
+SimImplDef(NAME, {\
+    mainW->updateRegValue(instr.INST_R.A,\
+    static_cast<TYPE>(mainW->REGS[instr.INST_R.B]) op static_cast<TYPE>(instr.INST_R.C));\
+})
+
+#define TRAP_R(NAME, op, TYPE)\
+SimImplDef(NAME, {\
+    TYPE a = mainW->REGS[instr.INST_R.s];\
+    TYPE b = mainW->REGS[instr.INST_R.t];\
+    if (a op b) throw std::runtime_error {"conditionally trapped!"};\
+})
+
+#define TRAP_RI(NAME, op, TYPE)\
+SimImplDef(NAME, {\
+    TYPE a = mainW->REGS[instr.INST_I.s];\
+    TYPE b = instr.INST_I.C;\
+    if (a op b) throw std::runtime_error {"conditionally trapped!"};\
+})
+
+#define BRANCH_IF(NAME, COND) \
+SimImplDef(NAME, {\
+    if (COND) {\
+        mainW->updateProgramCounter(mainW->PC + (int16_t) instr.INST_I.C * int32_t(4));\
+    }\
+})
+
+#define BRANCH_IF_SAVE(NAME, COND) \
+SimImplDef(NAME, {\
+    if (COND) {\
+        mainW->updateRegValue(31, mainW->PC + 4);\
+        mainW->updateProgramCounter(mainW->PC + (int16_t) instr.INST_I.C * int32_t(4));\
+    }\
+})
 
 /*!
  * The base class of the instruction implementations.

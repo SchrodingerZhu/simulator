@@ -10,6 +10,10 @@
 #include "instruction.h"
 #include "heap.h"
 #include "stack.h"
+
+#define KiB 1024
+#define MiB (KiB * KiB)
+#define FRAME_SIZE MiB
 /*!
  * The Qt specified namespace for UI components
  */
@@ -20,6 +24,12 @@ QT_END_NAMESPACE
 class MainWindow;
 
 class Executor;
+
+enum MemoryType {
+    STATIC,
+    HEAP,
+    STACK
+};
 
 /*!
  * MainWindow of the GUI program.
@@ -115,6 +125,7 @@ public:
             uint32_t high;
         } part;
     } ACC;
+    std::array<char, MiB> frame;
     /// The pointer to the Qt UI components
     Ui::MainWindow *ui;
     /// The pointer to the executor
@@ -195,6 +206,9 @@ public:
     template<class T>
     void editHeap(uint32_t addr, T value);
 
+    template<class T>
+    void edit(uint32_t addr, T value);
+
     /*!
      * Increase the stack size by the given amount. This will update the UI at the same time.
      * @param n the amount to increase
@@ -228,12 +242,21 @@ public:
     /*!
      * Check whether a address is currently within the stack range.
      * @param addr the address to check
-     *
+     * @returns the checking result
      */
-    bool inStack(uint32_t addr);
+    MemoryType memoryType(uint32_t addr);
 
+    /*!
+     * Update the value in the target address.
+     * @param addr
+     * @param size
+     */
     void updateStack(uint32_t addr, size_t size);
 
+    /*!
+     * Update the lower bits in the accumulator
+     * @param value
+     */
     void updateLow(uint32_t value);
 
     void updateHigh(uint32_t value);
@@ -250,5 +273,17 @@ public:
     void handleSyscall();
 };
 
+#define CASE(NAME, TYPE) case TYPE##_##NAME:\
+    executor->impls[i] = _SIM::make_unique<NAME##Impl> (instr);\
+    break;
 
+#define RCASE(NAME) CASE(NAME, FCR)
+#define IJCASE(NAME) CASE(NAME, OPC)
+#define RICASE(NAME) CASE(NAME, RI)
+#define RLCASE(NAME) CASE(NAME, RLIKE)
+
+#define HANDLE(NAME, BLOCK)\
+    case SYSCALL_##NAME:\
+        BLOCK\
+        break;
 #endif // MAINWINDOW_H

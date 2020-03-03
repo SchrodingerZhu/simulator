@@ -164,8 +164,12 @@ void MainWindow::decreaseStack(size_t n) {
 }
 
 
-bool MainWindow::inStack(uint32_t addr) {
-    return stack.order(addr) >= 0;
+MemoryType MainWindow::memoryType(uint32_t addr) {
+    if (addr < FRAME_SIZE) {
+        return STATIC;
+    } else if (addr >= REGS[29]) {
+        return STACK;
+    } else return HEAP;
 }
 
 
@@ -184,16 +188,6 @@ void MainWindow::updateAcc(uint64_t value) {
     ui->low->setText(QString("0x%1").arg(QString::number(ACC.part.low, 16)));
     ui->high->setText(QString("0x%1").arg(QString::number(ACC.part.high, 16)));
 }
-
-
-#define CASE(NAME, TYPE) case TYPE##_##NAME:\
-    executor->impls[i] = _SIM::make_unique<NAME##Impl> (instr);\
-    break;
-
-#define RCASE(NAME) CASE(NAME, FCR)
-#define IJCASE(NAME) CASE(NAME, OPC)
-#define RICASE(NAME) CASE(NAME, RI)
-#define RLCASE(NAME) CASE(NAME, RLIKE)
 
 void MainWindow::translateAll() {
     executor->impls.clear();
@@ -390,6 +384,7 @@ void MainWindow::resetAll() {
     ui->instructions->setCurrentCell(0, 0);
     ui->heap->setRowCount(0);
     ui->instructions->setRowCount(0);
+    ui->frame->clear();
 }
 
 void MainWindow::on_resetButton_clicked() {
@@ -403,11 +398,6 @@ void MainWindow::on_stopButton_clicked() {
     ui->stepButton->setDisabled(false);
     ui->delay->setDisabled(false);
 }
-
-#define HANDLE(NAME, BLOCK)\
-    case SYSCALL_##NAME:\
-        BLOCK\
-        break;
 
 void MainWindow::handleSyscall() {
     switch (REGS[2]) {
@@ -440,7 +430,7 @@ void MainWindow::handleSyscall() {
             if (ok && !text.empty()) {
                 std::memcpy(addr, text.c_str(), std::min<size_t>(text.size(), limit));
             };
-            if (inStack(REGS[4])) {
+            if (memoryType(REGS[4]) == STACK) {
                 updateStack(REGS[4], std::min<size_t>(text.size(), limit) + 1);
             }
         })
