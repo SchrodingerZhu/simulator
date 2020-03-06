@@ -2,19 +2,7 @@
 #define INSTRUCTION_H
 
 #include "global.h"
-
-union Instruction {
-    uint32_t __content;
-    struct {
-        uint32_t f: 6, S: 5, d: 5, t:5, s: 5, op: 6;
-    } INST_R;
-    struct {
-        uint32_t C: 16, t: 5, s: 5, op: 6;
-    } INST_I;
-    struct {
-        uint32_t A: 26, op: 6;
-    } INST_J;
-};
+#include <instructions_types.h>
 
 enum TYPE : uint8_t {
     R, I, J, RI, RLIKE

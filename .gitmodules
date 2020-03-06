@@ -2,3 +2,6 @@
 	path = mimalloc
 	url = git@github.com:microsoft/mimalloc
 	branch = master
+[submodule "assembler"]
+	path = assembler
+	url = git@github.com:schrodingerzhu/assembler

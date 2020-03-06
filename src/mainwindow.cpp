@@ -59,6 +59,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->instructions->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->registers->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->registers->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    result = &std::cout;
 }
 
 MainWindow::~MainWindow() {
@@ -80,28 +81,13 @@ void MainWindow::on_openButton_clicked() {
     resetAll();
     auto fileName = QFileDialog::getOpenFileName(this, tr("Open File"));
     if (fileName.isEmpty()) return;
-    QFile file(fileName);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        showWarning("failed to load file");
+    auto assembly_result = generate_result(fileName.toStdString());
+    if (!assembly_result.success) {
+        showWarning(assembly_result.error_info.c_str());
         return;
     }
-    while (!file.atEnd()) {
-        auto res = file.readLine().trimmed();
-        if (res.isEmpty()) continue;
-        int i = 0;
-        bool ok = false;
-        uint32_t result = 0;
-        if (res.length() != 32) goto ERR_OPEN;
-        for (; i < 32; ++i) {
-            result = res.toUInt(&ok, 2);
-            if (!ok) {
-                ERR_OPEN:
-                showWarning("Invalid File Format");
-                return;
-            }
-        }
-        instructions.push_back(Instruction{.__content = result});
-    }
+    std::memcpy(frame.data(), assembly_result.data_part.data(), assembly_result.data_part.size());
+    instructions = std::move(assembly_result.instructions);
     ui->instructions->setRowCount(instructions.size());
     ui->instructions->setColumnCount(1);
     ui->instructions->horizontalHeader()->setVisible(false);
@@ -498,12 +484,29 @@ void MainWindow::deallocHeap(size_t addr) {
 }
 
 void MainWindow::updateStack(uint32_t addr, size_t size) {
-    for (auto i = 0; i < size; ++i) {
+    for (size_t i = 0; i < size; ++i) {
         auto order = addr - REGS[29] + i;
         ui->stack->item(order)->setText(
                 QString::number(*stack.get<uint8_t>(addr + i), 2).rightJustified(8, '0'));
     }
 }
 
-
+void MainWindow::on_pushButton_clicked()
+{
+    bool ok;
+    uint32_t addr = ui->frame->text().toUInt(&ok, 16);
+    if (!ok || memoryType(addr) != STATIC) {
+        showWarning("invalid address");
+    } else {
+        QMessageBox dialog(this);
+        dialog.setWindowTitle("Memory Viewer");
+        uint8_t content = *getRealAddr<uint8_t>(addr);
+        dialog.setText(QString::number(content, 2).rightJustified(8, '0'));
+        dialog.exec();
+    }
+}
 #pragma clang diagnostic pop
+
+
+
+

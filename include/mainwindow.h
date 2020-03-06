@@ -10,7 +10,7 @@
 #include "instruction.h"
 #include "heap.h"
 #include "stack.h"
-
+#include <assembler/include/api.h>
 #define KiB 1024
 #define MiB (KiB * KiB)
 #define FRAME_SIZE MiB
@@ -110,6 +110,7 @@ private slots:
      * The `PC` will remain unchanged and the execution can be resumed.
      */
     void on_stopButton_clicked();
+    void on_pushButton_clicked();
 
 public:
     /*!
@@ -136,7 +137,7 @@ public:
     /// A timer to ignite periodical signals on execution
     QTimer timer;
     /// The vector for instruction storage
-    QVector<Instruction> instructions{};
+    std::vector<Instruction> instructions{};
     /// The stack operation simulator.
     Stack stack;
     /// The heap operation simulator.
