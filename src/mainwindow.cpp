@@ -2,7 +2,7 @@
 #pragma ide diagnostic ignored "openmp-use-default-none"
 
 #include "mainwindow.h"
-#include "../include/ui_mainwindow.h"
+#include "./ui_mainwindow.h"
 #include "global.h"
 #include <QMessageBox>
 #include <QFileDialog>
