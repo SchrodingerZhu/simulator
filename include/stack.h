@@ -5,7 +5,7 @@
 #ifndef SIMULATOR_STACK_H
 #define SIMULATOR_STACK_H
 #define DEFAULT_SIZE    1u
-#define STACK_HIGH      0xffffffffu
+#define STACK_HIGH      0x7fffffffu
 
 #include <cstddef>
 #include <mimalloc.h>

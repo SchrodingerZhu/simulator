@@ -151,7 +151,7 @@ void MainWindow::decreaseStack(size_t n) {
 
 
 MemoryType MainWindow::memoryType(uint32_t addr) {
-    if (addr < FRAME_SIZE) {
+    if (STATIC_LOW <= addr && addr <= STATIC_HIGH) {
         return STATIC;
     } else if (addr >= REGS[29]) {
         return STACK;
@@ -351,7 +351,8 @@ void MainWindow::resetAll() {
     for (auto i = 0; i < 32; ++i) {
         updateRegValue(i, 0, QBrush("green"), true);
     }
-    updateRegValue(29, 0xFFFFFFFFu, QBrush("red"), true);
+    updateRegValue(29, STACK_HIGH, QBrush("red"), true);
+    updateRegValue(30, STATIC_LOW, QBrush("red"), true);
     stack.clear();
     heap.clear();
     ui->stack->clear();
@@ -459,6 +460,9 @@ void MainWindow::handleSyscall() {
         HANDLE(WRITE, {
             auto res = write(REGS[4], getRealAddr<char>(REGS[5]), REGS[6]);
             updateRegValue(2, res);
+        })
+        HANDLE(EXIT2, {
+            { executor->exit(REGS[4]); }
         })
         default:
             throw std::runtime_error("unknown syscall");

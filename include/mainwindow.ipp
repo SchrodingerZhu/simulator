@@ -31,7 +31,7 @@ T *MainWindow::getRealAddr(uint32_t addr) {
         case STACK:
             return stack.get<T>(addr);
         case STATIC:
-            return reinterpret_cast<T *>(frame.begin() + addr);
+            return reinterpret_cast<T *>(frame.begin() + (addr - STATIC_LOW));
         default:
             return reinterpret_cast<T *>(addr);
     }
