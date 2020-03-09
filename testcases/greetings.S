@@ -2,7 +2,7 @@
 # input your name and then output greetings
 .text
 addi $v0, $zero, 4
-add $a0, $zero, $fp
+add $a0, $zero, $gp
 syscall
 addi $v0, $zero, 9
 addi $a0, $zero, 1024
@@ -13,7 +13,7 @@ add $a0, $zero, $t0 # string address
 addi $a1, $zero, 12 # string length 12
 syscall
 addi $v0, $zero, 4
-addi $a0, $fp, 16 # print "hello, "
+addi $a0, $gp, 16 # print "hello, "
 syscall
 addi $a0, $t0, 0 # print name
 syscall

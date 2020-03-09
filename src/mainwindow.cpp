@@ -352,7 +352,8 @@ void MainWindow::resetAll() {
         updateRegValue(i, 0, QBrush("green"), true);
     }
     updateRegValue(29, STACK_HIGH, QBrush("red"), true);
-    updateRegValue(30, STATIC_LOW, QBrush("red"), true);
+    updateRegValue(30, STACK_HIGH, QBrush("red"), true);
+    updateRegValue(28, STATIC_LOW, QBrush("red"), true);
     stack.clear();
     heap.clear();
     ui->stack->clear();

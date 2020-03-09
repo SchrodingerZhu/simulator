@@ -1,49 +1,49 @@
 # input a, output factorial(a)
 .text
 addi $v0, $zero, 11
-lb   $a0, 48($fp)
+lb   $a0, 48($gp)
 syscall
-lb   $a0, 49($fp)
+lb   $a0, 49($gp)
 syscall
-lb   $a0, 50($fp)
+lb   $a0, 50($gp)
 syscall
-lb   $a0, 51($fp)
+lb   $a0, 51($gp)
 syscall
-lb   $a0, 52($fp)
+lb   $a0, 52($gp)
 syscall
-lb   $a0, 0($fp)
+lb   $a0, 0($gp)
 syscall
 
 addi $v0, $zero, 4
-addi $a0, $fp, 4
+addi $a0, $gp, 4
 syscall
-addi $a0, $fp, 0
-syscall
-
-addi $a0, $fp, 12
-syscall
-addi $a0, $fp, 0
+addi $a0, $gp, 0
 syscall
 
-addi $a0, $fp, 24
+addi $a0, $gp, 12
 syscall
-addi $a0, $fp, 0
+addi $a0, $gp, 0
+syscall
+
+addi $a0, $gp, 24
+syscall
+addi $a0, $gp, 0
 syscall
 
 addi $v0, $zero, 1
-lw $a0, 36($fp)
+lw $a0, 36($gp)
 syscall
 addi $v0, $zero, 11
-lbu   $a0, 0($fp)
+lbu   $a0, 0($gp)
 syscall
 addi $v0, $zero, 1
-lw $a0, 40($fp)
+lw $a0, 40($gp)
 syscall
 addi $v0, $zero, 11
-lbu   $a0, 0($fp)
+lbu   $a0, 0($gp)
 syscall
 addi $v0, $zero, 1
-lwr $a0, 44($fp)
+lwr $a0, 44($gp)
 syscall
 addi $v0, $zero, 10
 syscall
