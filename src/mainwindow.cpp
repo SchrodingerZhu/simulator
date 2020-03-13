@@ -87,13 +87,13 @@ void MainWindow::on_openButton_clicked() {
         return;
     }
     std::memcpy(frame.data(), assembly_result.data_part.data(), assembly_result.data_part.size());
+    STATIC_HIGH = STATIC_LOW + assembly_result.data_part.size();
     instructions = std::move(assembly_result.instructions);
     ui->instructions->setRowCount(instructions.size());
     ui->instructions->setColumnCount(1);
     ui->instructions->horizontalHeader()->setVisible(false);
     auto m = BASE_ADDR;
     for (int i = 0; i < instructions.size(); ++i, m += 4) {
-        ui->instructions->setVerticalHeaderItem(i, new QTableWidgetItem{QString::number(m, 16)});
         ui->instructions->setItem(i, 0, new QTableWidgetItem{
                 QString::number(instructions[i].__content, 2).rightJustified(32, '0')});
     }
@@ -421,6 +421,8 @@ void MainWindow::handleSyscall() {
             if (memoryType(REGS[4]) == STACK) {
                 updateStack(REGS[4], std::min<size_t>(text.size(), limit) + 1);
             }
+            auto cur = ui->textOutput->textCursor();
+            cur.insertText(text.c_str());
         })
         HANDLE(PRINT_STRING, {
             auto addr = getRealAddr<char>(REGS[4]);
@@ -429,6 +431,9 @@ void MainWindow::handleSyscall() {
         })
         HANDLE(READ_INT, {
             auto res = QInputDialog::getInt(this, "Input Dialog", "Please Input");
+            auto cur = ui->textOutput->textCursor();
+            cur.insertText(QString::number(res));
+            cur.insertText("\n");
             updateRegValue(2, res);
         })
         HANDLE(PRINT_INT, {

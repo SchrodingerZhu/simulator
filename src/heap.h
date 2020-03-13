@@ -56,6 +56,7 @@ public:
      * @return the order of the block
      */
     size_t order(uint32_t addr);
+
 };
 
 /*!

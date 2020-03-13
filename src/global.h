@@ -7,8 +7,8 @@
 #include <mimalloc.h>
 /// start address of the MIPS program
 #define BASE_ADDR 0x000000u
-#define STATIC_LOW  0x1000000u
-#define STATIC_HIGH 0x1400000u
+#define STATIC_LOW  0x500000u
+extern size_t STATIC_HIGH;
 /// a mapping between register no to register name
 extern const char *REG_NAME[32];
 #if defined(__GNUC__)
