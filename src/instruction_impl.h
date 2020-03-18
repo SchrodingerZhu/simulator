@@ -31,20 +31,27 @@
  */
 #define SimDef(CLASS) ComDef(CLASS, Instruction)
 /*!
- * Complex real definition of instruction behaviors
+ * Complex real definition of instruction behaviors (custom direct base)
  * @attention must be used together with declarations
  */
 #define ComImplDef(CLASS, FATHER, BLOCK)\
     void CLASS##Impl::exec() BLOCK\
     DEFAULT_INIT(CLASS, FATHER)
-
+/*!
+ * Simple real definition of instruction behaviors (default direct base)
+ * @attention must be used together with declarations
+ */
 #define SimImplDef(CLASS, BLOCK) ComImplDef(CLASS, Instruction, BLOCK)
-
+/*!
+ * Generate the real definition of the operations among registers
+ */
 #define OP_AMONG_REGS(NAME, A, B, op, C)\
 SimImplDef(NAME, {\
     mainW->updateRegValue(instr.INST_R.A, mainW->REGS[instr.INST_R.B] op mainW->REGS[instr.INST_R.C]);\
 })
-
+/*!
+ * Generate the real definition of the operations among registers with overflow checking
+ */
 #define OP_AMONG_REGS_OVERFLOW(NAME, A, B, op, C)\
 SimImplDef(NAME, {\
     int32_t a = mainW->REGS[instr.INST_R.B];\
@@ -53,40 +60,52 @@ SimImplDef(NAME, {\
     if(__builtin_##op##_overflow(a, b, &c)) throw std::runtime_error {"overflow"};\
     mainW->updateRegValue(instr.INST_R.A, c);\
 })
-
+/*!
+ * Generate the real definition of shifting instructions whose shift among is stored in register
+ */
 #define SHIFT_REAL(NAME, A, B, op, C, TYPE)\
 SimImplDef(NAME, {\
     mainW->updateRegValue(instr.INST_R.A,\
     static_cast<TYPE>(mainW->REGS[instr.INST_R.B]) op static_cast<TYPE>(0b11111 & mainW->REGS[instr.INST_R.C]));\
 })
-
+/*!
+ * Generate the real definition of shifting instructions whose shift among is stored in immediate value
+ */
 #define SHIFT_IMM(NAME, A, B, op, C, TYPE)\
 SimImplDef(NAME, {\
     mainW->updateRegValue(instr.INST_R.A,\
     static_cast<TYPE>(mainW->REGS[instr.INST_R.B]) op static_cast<TYPE>(instr.INST_R.C));\
 })
-
+/*!
+ * Generate the real definition of R-Type Trap instructions
+ */
 #define TRAP_R(NAME, op, TYPE)\
 SimImplDef(NAME, {\
     TYPE a = mainW->REGS[instr.INST_R.s];\
     TYPE b = mainW->REGS[instr.INST_R.t];\
     if (a op b) throw std::runtime_error {"conditionally trapped!"};\
 })
-
+/*!
+ * Generate the real definition of RI-Type Trap instructions
+ */
 #define TRAP_RI(NAME, op, TYPE)\
 SimImplDef(NAME, {\
     TYPE a = mainW->REGS[instr.INST_I.s];\
     TYPE b = instr.INST_I.C;\
     if (a op b) throw std::runtime_error {"conditionally trapped!"};\
 })
-
+/*!
+ * Generate the real definition of Branch instructions
+ */
 #define BRANCH_IF(NAME, COND) \
 SimImplDef(NAME, {\
     if (COND) {\
         mainW->updateProgramCounter(mainW->PC + (int16_t) instr.INST_I.C * int32_t(4));\
     }\
 })
-
+/*!
+ * Generate the real definition of Branch instructions with save operation
+ */
 #define BRANCH_IF_SAVE(NAME, COND) \
 SimImplDef(NAME, {\
     if (COND) {\

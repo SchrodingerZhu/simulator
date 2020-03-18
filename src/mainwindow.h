@@ -25,6 +25,9 @@ class MainWindow;
 
 class Executor;
 
+/*!
+ * Different type of memories
+ */
 enum MemoryType {
     STATIC,
     HEAP,
@@ -248,41 +251,75 @@ public:
     MemoryType memoryType(uint32_t addr);
 
     /*!
-     * Update the value in the target address.
-     * @param addr
-     * @param size
+     * Update the value in the target address in GUI.
+     * @param addr address to update
+     * @param size number of bytes to update
      */
     void updateStack(uint32_t addr, size_t size);
 
     /*!
      * Update the lower bits in the accumulator
-     * @param value
+     * @param value new value
      */
     void updateLow(uint32_t value);
-
+    /*!
+     * Update the higher bits in the accumulator
+     * @param value new value
+     */
     void updateHigh(uint32_t value);
-
+    /*!
+     * Update the entire accumulator
+     * @param value new value
+     */
     void updateAcc(uint64_t value);
-
+    /*!
+     * Translate all instructions
+     */
     void translateAll();
-
+    /*!
+     * Clean all data
+     */
     void resetAll();
 
+    /*!
+     * get the real address of the memory
+     * @tparam T data type
+     * @param addr simulated memory
+     * @return the real address
+     */
     template<class T>
     T *getRealAddr(uint32_t addr);
-
+    /*!
+     * handle syscall based on the value in the target registers
+     */
     void handleSyscall();
 };
 
+/*!
+ * Generate a branch case for instruction handling
+ */
 #define CASE(NAME, TYPE) case TYPE##_##NAME:\
     executor->impls[i] = _SIM::make_unique<NAME##Impl> (instr);\
     break;
-
+/*!
+ * Generate a branch case for R-Type instruction handling
+ */
 #define RCASE(NAME) CASE(NAME, FCR)
+/*!
+ * Generate a branch case for I/J-Type instruction handling
+ */
 #define IJCASE(NAME) CASE(NAME, OPC)
+/*!
+ * Generate a branch case for RI-Type instruction handling
+ */
 #define RICASE(NAME) CASE(NAME, RI)
+/*!
+ * Generate a branch case for RLIKE-Type instruction handling
+ */
 #define RLCASE(NAME) CASE(NAME, RLIKE)
-
+/*!
+ * Generate a branch case for syscall handling
+ */
 #define HANDLE(NAME, BLOCK)\
     case SYSCALL_##NAME:\
         BLOCK\

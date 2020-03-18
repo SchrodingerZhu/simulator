@@ -3,9 +3,20 @@
 
 #include "global.h"
 #include <instructions_types.h>
-
+/*!
+ * An enumeration for different category of instructions
+ */
 enum TYPE : uint8_t {
-    R, I, J, RI, RLIKE
+    /// R-Type MIPS Instructions
+    R,
+    /// I-Type MIPS Instructions
+    I,
+    /// J-Type MIPS Instructions
+    J,
+    /// RI-Type MIPS Instructions
+    RI,
+    /// RLIKE-Type MIPS Instructions
+    RLIKE
 };
 
 #define OPC_J       0b000010
@@ -97,7 +108,11 @@ enum TYPE : uint8_t {
 #define RLIKE_MADDU 0b000001
 #define RLIKE_MSUB  0b000100
 #define RLIKE_MSUBU 0b000101
-
+/*!
+ * Detect the type of an raw instruction
+ * @param inst the instruction to detect
+ * @return the type of the instruction
+ */
 TYPE resolv_type(Instruction inst);
 
 #endif // INSTRUCTION_H

@@ -20,16 +20,33 @@ extern const char *REG_NAME[32];
 #define LIKELY(x) (x)
 #define UNLIKELY(x) (x)
 #endif
+/*!
+ * prototype for real implementation of instruction behaviors
+ */
 struct InstructionImpl;
+/*!
+ * This namespace contains some workarounds to provide back support
+ */
 namespace _SIM {
+    /*!
+     * The deleter for the unique_ptr of instruction implementations
+     */
     struct InstrDeleter {
         void operator()(InstructionImpl *t) {
             mi_free(t);
         }
     };
-
+    /*!
+     * Alisa of the unique_ptr of instruction implementations
+     */
     using InstrPtr = std::unique_ptr<InstructionImpl, InstrDeleter>;
-
+    /*!
+     * C++ 11 do not have make_unique. This functions works as an subtitution.
+     * @tparam T data type
+     * @tparam Args initialization args type
+     * @param args initialization args
+     * @return the unique ptr
+     */
     template<typename T, typename ...Args>
     InstrPtr make_unique(Args &&...args) {
         return InstrPtr(static_cast<InstructionImpl *>(new(mi_malloc(sizeof(T))) T(std::forward<Args>(args)...)),

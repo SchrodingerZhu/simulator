@@ -1,6 +1,8 @@
 #include "executor.h"
 #include <QDialog>
 #include <QVBoxLayout>
+#include <QLabel>
+#include <QPushButton>
 
 void Executor::next() {
     if (((mainW->PC - BASE_ADDR) >> 2u) < (size_t) mainW->instructions.size()) {
