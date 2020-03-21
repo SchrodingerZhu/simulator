@@ -423,6 +423,7 @@ void MainWindow::handleSyscall() {
             }
             auto cur = ui->textOutput->textCursor();
             cur.insertText(text.c_str());
+            cur.insertText("\n");
         })
         HANDLE(PRINT_STRING, {
             auto addr = getRealAddr<char>(REGS[4]);

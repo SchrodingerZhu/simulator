@@ -1,4 +1,4 @@
-# MIPS Simulator
+c# MIPS Simulator
 ![](misc/mips.png) 
 @image latex mips.png
 

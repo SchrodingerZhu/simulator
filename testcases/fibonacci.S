@@ -1,4 +1,3 @@
-.text
 		addi $v0, $zero, 5
 		syscall
 		add $s0, $v0, $zero
