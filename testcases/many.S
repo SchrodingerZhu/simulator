@@ -181,9 +181,9 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 	lb $t2, 0($t1)
 	sll $t2, $t2, 24
 	lb $t3, 1($t1)
-	sll $a0, $a0, 16
+	sll $t3, $t3, 16
 	lb $t4, 2($t1)
-	sll $a0, $a0, 8
+	sll $t4, $t4, 8
 	lb $t5, 3($t1)
 
 	or $a0, $t2,$t3
