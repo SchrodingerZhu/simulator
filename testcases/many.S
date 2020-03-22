@@ -7,16 +7,16 @@ str5: .ascii "aaaa"						#at 0x0050006C
 str6: .ascii "bbbb"						#at 0x00500070
 str7: .asciiz "ccc"						#at 0x00500074
 str8: .asciiz "Testing for fileIO syscalls"				#at 0x00500078
-str9: .asciiz "file.txt"				#at 0x00500094
-str10: .asciiz "If you see this, your fileIO is all cool"	#at 0x005000A0
-str11: .asciiz "num of chars printed to file:"				#at 0x005000CC
-str12: .asciiz "Goodbye"			#at 0x005000EB
-str13: .asciiz "You should see aaaabbbbccc, bbbbccc, ccc for three strings"	#at 0x005000F4
-half: .half 1,2						#at 0x00500130
-byte: .byte 1,2,3,4					#at 0x00500134
-str14: .asciiz "Testing for .half,.byte"	#at 0x00500138
-str15: .asciiz "For half, the output should be: 65539 in decimal, and you have:"	#at 0x00500150
-str16: .asciiz "For byte, the output should be: 16909059 in decimal, and you have:"	#at 0x00500190
+str9: .asciiz "/tmp/file.txt"				#at 0x00500094
+str10: .asciiz "If you see this, your fileIO is all cool"	#at 0x005000A4
+str11: .asciiz "num of chars printed to file:"				#at 0x005000D0
+str12: .asciiz "Goodbye"			#at 0x005000F0
+str13: .asciiz "You should see aaaabbbbccc, bbbbccc, ccc for three strings"	#at 0x005000F8
+half: .half 1,2						#at 0x00500134
+byte: .byte 1,2,3,4					#at 0x00500138
+str14: .asciiz "Testing for .half,.byte"	#at 0x0050013C
+str15: .asciiz "For half, the output should be: 65539 in decimal, and you have:"	#at 0x00500154
+str16: .asciiz "For byte, the output should be: 16909059 in decimal, and you have:"	#at 0x00500194
 
 
 .text
@@ -78,7 +78,7 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 	syscall
 
 	lui $a0, 80				#print str13
-	ori $a0, $a0, 244
+	ori $a0, $a0, 248
 	addi $v0, $zero, 4
 	syscall
 
@@ -91,8 +91,7 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 
 	lui $a0, 80				#open file
 	ori $a0, $a0, 148
-	addi $a2, $zero, 3
-	addi $a1, $zero, 4011005
+	addi $a1, $zero, 2
 	addi $v0, $v0, 9
 	syscall
 
@@ -105,11 +104,9 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 
 	add $t1, $zero, $v0	#transfer the allocated mem to $t1
 
-
-
 	add $a0, $t0, $zero		#write str10 to file
 	lui $a1, 80
-	ori $a1, $a1, 160
+	ori $a1, $a1, 164
 	addi $a2, $zero, 41
 	addi $v0, $zero, 15
 	syscall
@@ -117,7 +114,7 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 	add $t2, $zero, $a0 	#transfer the num of chars written to $t2
 
 	lui $a0, 80				#print str11
-	ori $a0, $a0, 204
+	ori $a0, $a0, 208
 	addi $v0, $zero, 4
 	syscall
 
@@ -126,7 +123,17 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 	sub $v0, $v0, $t5
 	syscall
 
-	addi $a0, $t0, 0		#read from file
+	addi $v0, $zero, 16		#close file
+	add $a0, $zero, $t0
+	syscall
+
+	lui $a0, 80				#open the file again
+	ori $a0, $a0, 148
+	addi $a1, $zero, 2
+	addi $v0, $zero, 13
+	syscall
+
+	addi $a0, $t0, 0		#read from the file
 	addi $a1, $t1, 0
 	addi $a2, $zero, 41
 	addi $v0, $zero, 14
@@ -146,16 +153,16 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 
 ############################################
 	lui $a0, 80				#print str14
-	ori $a0, $a0, 312
+	ori $a0, $a0, 316
 	addi $v0, $zero, 4
 	syscall
 
 	lui $t0, 80				#load half array
-	ori $t0, $t0, 304
+	ori $t0, $t0, 308
 
 
 	lui $a0, 80				#print str15
-	ori $a0, $a0, 336
+	ori $a0, $a0, 340
 	addi $v0, $zero, 4
 	syscall
 
@@ -170,13 +177,13 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 
 
 	lui $a0, 80				#print str16
-	ori $a0, $a0, 400
+	ori $a0, $a0, 404
 	addi $v0, $zero, 4
 	syscall
 
 
 	lui $t1, 80				#load byte array
-	ori $t1, $t0, 308
+	ori $t1, $t0, 312
 
 	lb $t2, 0($t1)
 	sll $t2, $t2, 24
@@ -200,7 +207,7 @@ main:	addi $a0,$a0, 80			#load str1 addr to $a0 and print.
 
 
 	lui $a0, 80				#print str12
-	ori $a0, $a0, 236
+	ori $a0, $a0, 240
 	addi $v0, $zero, 4
 	syscall
 

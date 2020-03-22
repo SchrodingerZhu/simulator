@@ -452,7 +452,7 @@ void MainWindow::handleSyscall() {
         })
         HANDLE(OPEN, {
             auto addr = getRealAddr<char>(REGS[4]);
-            auto flags = REGS[5] | O_CREAT | O_SYNC | O_TRUNC;
+            auto flags = REGS[5] | O_CREAT | O_SYNC;
             auto mode = REGS[6] | S_IRWXU;
             auto res = open(addr, flags, mode);
             updateRegValue(4, res);
