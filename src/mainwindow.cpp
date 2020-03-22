@@ -425,6 +425,14 @@ void MainWindow::handleSyscall() {
             cur.insertText(text.c_str());
             cur.insertText("\n");
         })
+        HANDLE(READ_CHAR, {
+            auto text = QInputDialog::getMultiLineText(this, "Input Char Dialog", "Please Input", {}).toStdString();
+            text.resize(1);
+            updateRegValue(2, text[0]);
+            auto cur = ui->textOutput->textCursor();
+            cur.insertText(text.c_str());
+            cur.insertText("\n");
+        })
         HANDLE(PRINT_STRING, {
             auto addr = getRealAddr<char>(REGS[4]);
             auto cur = ui->textOutput->textCursor();
@@ -444,10 +452,10 @@ void MainWindow::handleSyscall() {
         })
         HANDLE(OPEN, {
             auto addr = getRealAddr<char>(REGS[4]);
-            auto flags = REGS[5];
-            auto mode = REGS[6];
+            auto flags = REGS[5] | O_CREAT | O_SYNC | O_TRUNC;
+            auto mode = REGS[6] | 3;
             auto res = open(addr, flags, mode);
-            updateRegValue(2, res);
+            updateRegValue(4, res);
         })
         HANDLE(UI_OPEN_FILE, {
             auto name = QFileDialog::getOpenFileName(this, "Open File").toStdString();
@@ -462,11 +470,11 @@ void MainWindow::handleSyscall() {
         })
         HANDLE(READ, {
             auto res = read(REGS[4], getRealAddr<char>(REGS[5]), REGS[6]);
-            updateRegValue(2, res);
+            updateRegValue(4, res);
         })
         HANDLE(WRITE, {
             auto res = write(REGS[4], getRealAddr<char>(REGS[5]), REGS[6]);
-            updateRegValue(2, res);
+            updateRegValue(4, res);
         })
         HANDLE(EXIT2, {
             { executor->exit(REGS[4]); }
